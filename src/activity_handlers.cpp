@@ -2867,7 +2867,7 @@ void activity_handlers::wait_stamina_do_turn( player_activity *act, player *p )
 void activity_handlers::wait_stamina_finish( player_activity *act, player *p )
 {
     if( !act->values.empty() ) {
-        if( p->stamina < act->values.front() ){
+        if( p->stamina < act->values.front() ) {
             debugmsg( "Failed to wait until stamina threshold %d reached, only at %d. You may not be regaining stamina.",
                       act->values.front(), p->stamina );
         }
