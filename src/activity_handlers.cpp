@@ -2857,7 +2857,7 @@ void activity_handlers::wait_stamina_do_turn( player_activity *act, player *p )
 {
     int stamina_threshold = p->get_stamina_max();
     if( !act->values.empty() ) {
-        stamina_threshold = values.front();
+        stamina_threshold = act->values.front();
     }
     if( p->stamina >= stamina_threshold ) {
         wait_stamina_finish( act, p );
@@ -2867,9 +2867,9 @@ void activity_handlers::wait_stamina_do_turn( player_activity *act, player *p )
 void activity_handlers::wait_stamina_finish( player_activity *act, player *p )
 {
     if( !act->values.empty() ) {
-        if( p->stamina < values.front() ){
+        if( p->stamina < act->values.front() ){
             debugmsg( "Failed to wait until stamina threshold %d reached, only at %d. You may not be regaining stamina.",
-                      values.front(), p->stamina );
+                      act->values.front(), p->stamina );
         }
     } else if( p->stamina < p->get_stamina_max() ) {
         p->add_msg_if_player( _( "You are bored of waiting, so you stop." ) );
