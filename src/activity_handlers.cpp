@@ -2875,6 +2875,7 @@ void activity_handlers::wait_stamina_finish( player_activity *act, player *p )
         p->add_msg_if_player( _( "You are bored of waiting, so you stop." ) );
     } else {
         p->add_msg_if_player( _( "You finish waiting and feel refreshed." ) );
+    }
     act->set_to_null();
 }
 
