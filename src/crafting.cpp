@@ -404,8 +404,10 @@ bool player::check_eligible_containers_for_crafting( const recipe &rec, int batc
         }
 
         if( charges_to_store > 0 ) {
-            popup( _( "You don't have anything to store %s in!" ), prod.tname() );
-            return false;
+            if( !query_yn( ( "You don't have anything to store %s in and may have to pour it out or consume it as soon as it is prepared! Proceed?" ),
+                           prod.tname() ) ) {
+                return false;
+            }
         }
     }
 
@@ -688,7 +690,8 @@ static item_location set_item_map( const tripoint &loc, item &newit )
 /**
  * Set an item on the map or in a vehicle and return the new location
  */
-static item_location set_item_map_or_vehicle( const player &p, const tripoint &loc, item &newit )
+static item_location set_item_map_or_vehicle( const player &p, const tripoint &loc,
+        item &newit )
 {
     if( const cata::optional<vpart_reference> vp = g->m.veh_at( loc ).part_with_feature( "CARGO",
             false ) ) {
