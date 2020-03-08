@@ -116,14 +116,14 @@ class player_morale
                 morale_type type;
                 const itype *item_type;
 
-                int bonus = 0;
-                time_duration duration = 0_turns;   // Zero duration == infinity
-                time_duration decay_start = 0_turns;
-                time_duration age = 0_turns;
+                int bonus;
+                time_duration duration;   // Zero duration == infinity
+                time_duration decay_start;
+                time_duration age;
                 /**
                  *this point's percent contribution to the total positive or total negative morale effect
                  */
-                double percent_contribution = 0;
+                double percent_contribution;
 
                 /**
                  * Returns either new_time or remaining time (which one is greater).

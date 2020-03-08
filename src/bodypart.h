@@ -119,7 +119,7 @@ struct body_part_struct {
             return bionic_slots_;
         }
     private:
-        int bionic_slots_ = 0;
+        int bionic_slots_;
 };
 
 class body_part_set

@@ -646,7 +646,7 @@ class fireweapon_on_actor : public iuse_actor
         std::string auto_extinguish_message;
         int noise = 0; // If 0, it produces a message instead of noise
         int noise_chance = 1; // one_in(this variable)
-        int auto_extinguish_chance = 0; // one_in(this) per turn to fail
+        int auto_extinguish_chance; // one_in(this) per turn to fail
 
         fireweapon_on_actor( const std::string &type = "fireweapon_on" ) : iuse_actor( type ) {}
 
@@ -688,19 +688,19 @@ class musical_instrument_actor : public iuse_actor
         /**
          * Speed penalty when playing the instrument
          */
-        int speed_penalty = 0;
+        int speed_penalty;
         /**
          * Volume of the music played
          */
-        int volume = 0;
+        int volume;
         /**
          * Base morale bonus/penalty
          */
-        int fun = 0;
+        int fun;
         /**
          * Morale bonus scaling (off current perception)
          */
-        int fun_bonus = 0;
+        int fun_bonus;
         /**
         * List of sound descriptions for players
         */
@@ -748,10 +748,10 @@ class cast_spell_actor : public iuse_actor
 {
     public:
         // this item's spell fail % is 0
-        bool no_fail = false;
+        bool no_fail;
         // the spell this item casts when used.
         spell_id item_spell;
-        int spell_level = 0;
+        int spell_level;
         /**does the item requires to be worn to be activable*/
         bool need_worn = false;
         /**does the item requires to be wielded to be activable*/
@@ -868,16 +868,16 @@ class repair_item_actor : public iuse_actor
         /** Skill used */
         skill_id used_skill;
         /** Maximum skill level that can be gained by using this actor. */
-        int trains_skill_to = 0;
+        int trains_skill_to;
         /**
           * Volume of materials required (and used up) as percentage of repaired item's volume.
           * Set to 0 to always use just 1 component.
           */
-        float cost_scaling = 1.0f;
+        float cost_scaling;
         /** Extra value added to skill roll */
-        int tool_quality = 0;
+        int tool_quality;
         /** Move cost for every attempt */
-        int move_cost = 0;
+        int move_cost;
 
         enum attempt_hint : int {
             AS_SUCCESS = 0,     // Success, but can retry
@@ -1100,8 +1100,8 @@ class mutagen_actor : public iuse_actor
 {
     public:
         std::string mutation_category;
-        bool is_weak = false;
-        bool is_strong = false;
+        bool is_weak;
+        bool is_strong;
 
         mutagen_actor() : iuse_actor( "mutagen" ) {}
 

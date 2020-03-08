@@ -17,7 +17,7 @@
   {
     "type": "TOOL",
     "id": "minireactor",
-    "name": { "str": "minireactor" },
+    "name": "minireactor",
     "description": "A small portable plutonium reactor.  Handle with great care!",
     "weight": "27215 g",
     "to_hit": -4,
@@ -79,7 +79,7 @@
   {
     "type": "GENERIC",
     "id": "recharge_station",
-    "name": { "str": "recharging station" },
+    "name": "recharging station",
     "description": "A universal recharging station designed to operate on vehicle power.  While on it will steadily charge all rechargeable batteries (battery cells, lead-acid batteries, etc) placed directly within its storage space.  The system can only be installed onto existing storage compartments, and is controlled from a dashboard or electronics control unit.",
     "weight": "10000 g",
     "to_hit": 1,
@@ -87,6 +87,21 @@
     "symbol": "-",
     "material": [ "steel", "plastic" ],
     "volume": "5 L",
+    "bashing": 5,
+    "category": "veh_parts",
+    "price": 90000
+  },
+  {
+    "type": "GENERIC",
+    "id": "recharge_station_air",
+    "name": "air compressor",
+    "description": "An air compressor designed to operate on vehicle power.  While on it will steadily fill all refillable high pressure air containers placed directly within its storage space.  The system can only be installed onto existing storage compartments, and is controlled from a dashboard or electronics control unit.  The connectors are specifically designed for connection to air cylinders.",
+    "weight": 10000,
+    "to_hit": 1,
+    "color": "light_blue",
+    "symbol": "-",
+    "material": [ "steel", "plastic" ],
+    "volume": 20,
     "bashing": 5,
     "category": "veh_parts",
     "price": 90000
@@ -109,7 +124,7 @@
   {
     "type": "GENERIC",
     "id": "programmable_autopilot",
-    "name": { "str": "programmable autopilot" },
+    "name": "programmable autopilot",
     "description": "A computer system hooked up to the steering and engine of a vehicle to allow it to follow simple paths.",
     "weight": "11246 g",
     "to_hit": -2,
@@ -124,7 +139,7 @@
   {
     "type": "GENERIC",
     "id": "vh_autoclave",
-    "name": { "str": "mountable autoclave" },
+    "name": "mountable autoclave",
     "description": "This autoclave has been rigged to run off a vehicle power grid.",
     "price": 162654,
     "symbol": "A",
@@ -137,14 +152,14 @@
     "type": "GENERIC",
     "copy-from": "washing_machine",
     "id": "minifridge",
-    "name": { "str": "minifridge" },
+    "name": "minifridge",
     "description": "A very small fridge for keeping food cool.  Provides some insulation from outside weather.",
     "insulation": 2
   },
   {
     "type": "GENERIC",
     "id": "minifreezer",
-    "name": { "str": "minifreezer" },
+    "name": "minifreezer",
     "description": "Compact version of a chest freezer, designed as a mobile solution for freezing food.  Provides insulation from the elements.",
     "price": 70000,
     "insulation": 4,
@@ -153,7 +168,7 @@
   {
     "type": "GENERIC",
     "id": "dishwasher",
-    "name": { "str": "dishwasher" },
+    "name": "dishwasher",
     "description": "A very small dishwasher designed for use in vehicles.",
     "looks_like": "washing_machine",
     "copy-from": "washing_machine"

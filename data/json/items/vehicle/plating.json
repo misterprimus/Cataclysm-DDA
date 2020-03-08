@@ -114,7 +114,7 @@
   {
     "type": "GENERIC",
     "id": "hard_plate",
-    "name": { "str": "hard plating" },
+    "name": "hard plating",
     "description": "A piece of very thick armor plating made of steel.",
     "weight": "32640 g",
     "to_hit": -1,
@@ -130,7 +130,7 @@
   {
     "type": "GENERIC",
     "id": "mil_plate",
-    "name": { "str": "military composite plating" },
+    "name": "military composite plating",
     "description": "A thick sheet of military grade armor, best bullet stopper you can stick on a vehicle.",
     "weight": "16500 g",
     "to_hit": -1,
@@ -148,7 +148,7 @@
     "id": "chitin_plate",
     "symbol": "]",
     "color": "yellow",
-    "name": { "str": "chitin armor kit" },
+    "name": "chitin armor kit",
     "description": "Light chitin plating made for a vehicle.",
     "price": 1200,
     "material": [ "chitin" ],

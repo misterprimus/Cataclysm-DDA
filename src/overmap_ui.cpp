@@ -397,9 +397,9 @@ static point draw_notes( const tripoint &origin )
         g->refresh_all();
         nmenu.desc_enabled = true;
         nmenu.input_category = "OVERMAP_NOTES";
-        nmenu.additional_actions.emplace_back( "DELETE_NOTE", translation() );
-        nmenu.additional_actions.emplace_back( "EDIT_NOTE", translation() );
-        nmenu.additional_actions.emplace_back( "MARK_DANGER", translation() );
+        nmenu.additional_actions.emplace_back( "DELETE_NOTE", "" );
+        nmenu.additional_actions.emplace_back( "EDIT_NOTE", "" );
+        nmenu.additional_actions.emplace_back( "MARK_DANGER", "" );
         const input_context ctxt( nmenu.input_category );
         nmenu.text = string_format(
                          _( "<%s> - center on note, <%s> - edit note, <%s> - mark as dangerous, <%s> - delete note, <%s> - close window" ),
@@ -567,7 +567,6 @@ void draw( const catacurses::window &w, const catacurses::window &wbar, const tr
     std::vector<tripoint> player_path_route;
     std::unordered_map<tripoint, npc_coloring> npc_color;
     if( blink ) {
-        // get seen NPCs
         const auto &npcs = overmap_buffer.get_npcs_near_player( sight_points );
         for( const auto &np : npcs ) {
             if( np->posz() != center.z ) {
@@ -590,7 +589,6 @@ void draw( const catacurses::window &w, const catacurses::window &wbar, const tr
             }
         }
         std::vector<npc *> followers;
-        // get friendly followers
         for( auto &elem : g->get_follower_list() ) {
             shared_ptr_fast<npc> npc_to_get = overmap_buffer.find_npc( elem );
             if( !npc_to_get ) {
@@ -599,16 +597,13 @@ void draw( const catacurses::window &w, const catacurses::window &wbar, const tr
             npc *npc_to_add = npc_to_get.get();
             followers.push_back( npc_to_add );
         }
-        // get all travelling NPCs for the debug menu to show pathfinding routes.
-        for( auto &elem : overmap_buffer.get_npcs_near_player( 200 ) ) {
+        for( auto &elem : overmap_buffer.get_npcs_near_player( 75 ) ) {
             if( !elem ) {
                 continue;
             }
             npc *npc_to_add = elem.get();
-            if( npc_to_add->mission == NPC_MISSION_TRAVELLING && !npc_to_add->omt_path.empty() ) {
-                for( auto &elem : npc_to_add->omt_path ) {
-                    path_route.push_back( tripoint( elem.xy(), npc_to_add->posz() ) );
-                }
+            if( npc_to_add->mission == NPC_MISSION_TRAVELLING ) {
+                followers.push_back( npc_to_add );
             }
         }
         for( auto &elem : g->u.omt_path ) {
@@ -618,6 +613,12 @@ void draw( const catacurses::window &w, const catacurses::window &wbar, const tr
         for( const auto &np : followers ) {
             if( np->posz() != center.z ) {
                 continue;
+            }
+            if( !np->omt_path.empty() ) {
+                for( auto &elem : np->omt_path ) {
+                    tripoint tri_to_add = tripoint( elem.xy(), np->posz() );
+                    path_route.push_back( tri_to_add );
+                }
             }
             const tripoint pos = np->global_omt_location();
             auto iter = npc_color.find( pos );
@@ -1168,8 +1169,8 @@ static bool search( tripoint &curs, const tripoint &orig, const bool show_explor
 
     input_context ctxt( "OVERMAP_SEARCH" );
     ctxt.register_leftright();
-    ctxt.register_action( "NEXT_TAB", to_translation( "Next target" ) );
-    ctxt.register_action( "PREV_TAB", to_translation( "Previous target" ) );
+    ctxt.register_action( "NEXT_TAB", translate_marker( "Next target" ) );
+    ctxt.register_action( "PREV_TAB", translate_marker( "Previous target" ) );
     ctxt.register_action( "QUIT" );
     ctxt.register_action( "CONFIRM" );
     ctxt.register_action( "HELP_KEYBINDINGS" );

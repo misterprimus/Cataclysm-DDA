@@ -23,8 +23,8 @@
 #include "flat_set.h"
 #include "io_tags.h"
 #include "item_location.h"
-#include "magic_enchantment.h"
 #include "optional.h"
+#include "relic.h"
 #include "requirements.h"
 #include "safe_reference.h"
 #include "string_id.h"
@@ -32,11 +32,18 @@
 #include "units.h"
 #include "visitable.h"
 #include "gun_mode.h"
+#include "point.h"
 
 class item;
 class material_type;
 struct mtype;
 class faction;
+
+namespace cata
+{
+template<typename T>
+class optional;
+} // namespace cata
 class nc_color;
 class JsonIn;
 class JsonOut;
@@ -49,8 +56,6 @@ class gunmod_location;
 class Character;
 class player;
 class recipe;
-class relic;
-struct tripoint;
 struct itype;
 struct islot_comestible;
 
@@ -172,10 +177,10 @@ class item : public visitable<item>
     public:
         item();
 
-        item( item && );
-        item( const item & );
-        item &operator=( item && );
-        item &operator=( const item & );
+        item( item && ) = default;
+        item( const item & ) = default;
+        item &operator=( item && ) = default;
+        item &operator=( const item & ) = default;
 
         explicit item( const itype_id &id, time_point turn = calendar::turn, int qty = -1 );
         explicit item( const itype *type, time_point turn = calendar::turn, int qty = -1 );
@@ -192,8 +197,6 @@ class item : public visitable<item>
 
         /** For constructing in-progress crafts */
         item( const recipe *rec, int qty, std::list<item> items, std::vector<item_comp> selections );
-
-        ~item();
 
         /** Return a pointer-like type that's automatically invalidated if this
          * item is destroyed or assigned-to */
@@ -329,7 +332,7 @@ class item : public visitable<item>
         std::string tname( unsigned int quantity = 1, bool with_prefix = true,
                            unsigned int truncate = 0 ) const;
         std::string display_money( unsigned int quantity, unsigned int total,
-                                   const cata::optional<unsigned int> &selected = cata::nullopt ) const;
+                                   cata::optional<unsigned int> selected = cata::nullopt ) const;
         /**
          * Returns the item name and the charges or contained charges (if the item can have
          * charges at all). Calls @ref tname with given quantity and with_prefix being true.
@@ -768,9 +771,6 @@ class item : public visitable<item>
 
         /** whether an item is perishable (can rot) */
         bool goes_bad() const;
-
-        /** whether an item is perishable (can rot), even if it is currently in a preserving container */
-        bool goes_bad_after_opening() const;
 
         /** Get the shelf life of the item*/
         time_duration get_shelf_life() const;
@@ -1964,6 +1964,7 @@ class item : public visitable<item>
         void set_birthday( const time_point &bday );
         void handle_pickup_ownership( Character &c );
         int get_gun_ups_drain() const;
+        int get_gun_air_drain() const;
         void validate_ownership() const;
         inline void set_old_owner( const faction_id &temp_owner ) {
             old_owner = temp_owner;
@@ -2142,7 +2143,7 @@ class item : public visitable<item>
         cata::value_ptr<craft_data> craft_data_;
 
         // any relic data specific to this item
-        cata::value_ptr<relic> relic_data;
+        cata::optional<relic> relic_data;
     public:
         int charges;
         units::energy energy;      // Amount of energy currently stored in a battery

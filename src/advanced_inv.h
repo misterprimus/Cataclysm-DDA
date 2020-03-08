@@ -1,4 +1,4 @@
-x#pragma once
+#pragma once
 #ifndef ADVANCED_INV_H
 #define ADVANCED_INV_H
 
@@ -6,9 +6,14 @@ x#pragma once
 #include <cstddef>
 #include <array>
 #include <functional>
+#include <list>
+#include <map>
 #include <string>
+#include <vector>
 
 #include "cursesdef.h"
+#include "point.h"
+#include "units.h"
 #include "advanced_inv_area.h"
 #include "advanced_inv_listitem.h"
 #include "advanced_inv_pane.h"
@@ -58,10 +63,10 @@ class advanced_inventory
             right = 1,
             NUM_PANES = 2
         };
-        const int head_height = 0;
-        const int min_w_height = 0;
-        const int min_w_width = 0;
-        const int max_w_width = 0;
+        const int head_height;
+        const int min_w_height;
+        const int min_w_width;
+        const int max_w_width;
 
         // swap the panes and windows via std::swap()
         void swap_panes();
@@ -75,17 +80,17 @@ class advanced_inventory
         void refresh_minimap();
         char get_minimap_sym( side p ) const;
 
-        bool inCategoryMode = false;
+        bool inCategoryMode;
 
-        int itemsPerPage = 0;
-        int w_height = 0;
-        int w_width = 0;
+        int itemsPerPage;
+        int w_height;
+        int w_width;
 
-        int headstart = 0;
-        int colstart = 0;
+        int headstart;
+        int colstart;
 
-        bool recalc = false;
-        bool redraw = false;
+        bool recalc;
+        bool redraw;
         /**
          * Which panels is active (item moved from there).
          */
@@ -98,7 +103,7 @@ class advanced_inventory
          * True if (and only if) the filter of the active panel is currently
          * being edited.
          */
-        bool filter_edit = false;
+        bool filter_edit;
         /**
          * Two panels (left and right) showing the items, use a value of @ref side
          * as index.
@@ -111,7 +116,7 @@ class advanced_inventory
         catacurses::window left_window;
         catacurses::window right_window;
 
-        bool exit = false;
+        bool exit;
 
         // store/load settings (such as index, filter, etc)
         void save_settings( bool only_panes );

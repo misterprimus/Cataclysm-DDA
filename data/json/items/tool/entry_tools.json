@@ -21,10 +21,10 @@
   {
     "id": "crude_picklock",
     "type": "TOOL",
-    "name": { "str": "improvised lockpick" },
+    "name": "improvised lockpick",
     "description": "This is an improvised set of picks and torsion wrenches made from scrap metal.  You need MacGyver-like skills to open locks with these as they are brittle, but they lower the chances of alarms being set off.",
     "weight": "23 g",
-    "volume": "5 ml",
+    "volume": 0,
     "price": 0,
     "material": "steel",
     "symbol": ";",
@@ -34,7 +34,7 @@
   {
     "id": "iceaxe",
     "type": "TOOL",
-    "name": { "str": "ice axe" },
+    "name": "ice axe",
     "description": "This is an ice axe with hammer on its head, a multi-purpose hiking and climbing tool used by mountaineers.  It is sturdy enough to pry open closed doors or lift manhole covers.",
     "weight": "500 g",
     "volume": "750 ml",
@@ -53,7 +53,7 @@
   {
     "id": "makeshift_crowbar",
     "type": "TOOL",
-    "name": { "str": "makeshift crowbar" },
+    "name": "makeshift crowbar",
     "description": "This is a pipe whose ends have been bent and hammered flat to resemble a crowbar.  Use it to open locked crates without destroying them, or to lift manhole covers.  You could also wield it to fight with, in a pinch.",
     "weight": "1250 g",
     "volume": "1 L",
@@ -72,10 +72,10 @@
   {
     "id": "picklocks",
     "type": "TOOL",
-    "name": { "str": "locksmith kit" },
+    "name": "locksmith kit",
     "description": "This is a locksmith's set of sturdy steel lock picks and torsion wrenches.  It is essential for silently and quickly opening locks, provided you have some mechanical skill.",
     "weight": "544 g",
-    "volume": "100 ml",
+    "volume": 0,
     "price": 20000,
     "material": "steel",
     "symbol": ";",

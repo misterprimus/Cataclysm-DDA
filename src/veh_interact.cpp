@@ -102,18 +102,14 @@ player_activity veh_interact::serialize_activity()
             time = vp->install_time( g->u );
             break;
         case 'r':
-            if( pt != nullptr ) {
-                if( pt->is_broken() ) {
-                    time = vp->install_time( g->u );
-                } else if( pt->base.max_damage() > 0 ) {
-                    time = vp->repair_time( g->u ) * pt->base.damage() / pt->base.max_damage();
-                }
+            if( pt->is_broken() ) {
+                time = vp->install_time( g->u );
+            } else if( pt->base.max_damage() > 0 ) {
+                time = vp->repair_time( g->u ) * pt->base.damage() / pt->base.max_damage();
             }
             break;
         case 'o':
             time = vp->removal_time( g->u );
-            break;
-        default:
             break;
     }
     if( g->u.has_trait( trait_DEBUG_HS ) ) {
@@ -123,10 +119,9 @@ player_activity veh_interact::serialize_activity()
 
     // if we're working on an existing part, use that part as the reference point
     // otherwise (e.g. installing a new frame), just use part 0
-    const point q = veh->coord_translate( pt ? pt->mount : veh->parts[0].mount );
-    const vehicle_part *vpt = pt ? pt : &veh->parts[0];
-    for( const tripoint &p : veh->get_points( true ) ) {
-        res.coord_set.insert( g->m.getabs( p ) );
+    point q = veh->coord_translate( pt ? pt->mount : veh->parts[0].mount );
+    for( const auto pt : veh->get_points( true ) ) {
+        res.coord_set.insert( g->m.getabs( pt ) );
     }
     res.values.push_back( g->m.getabs( veh->global_pos3() ).x + q.x );    // values[0]
     res.values.push_back( g->m.getabs( veh->global_pos3() ).y + q.y );    // values[1]
@@ -134,7 +129,7 @@ player_activity veh_interact::serialize_activity()
     res.values.push_back( dd.y );   // values[3]
     res.values.push_back( -dd.x );   // values[4]
     res.values.push_back( -dd.y );   // values[5]
-    res.values.push_back( veh->index_of_part( vpt ) ); // values[6]
+    res.values.push_back( veh->index_of_part( pt ) ); // values[6]
     res.str_values.push_back( vp->get_id().str() );
     res.targets.emplace_back( std::move( target ) );
 
@@ -879,6 +874,7 @@ bool veh_interact::do_install( std::string &msg )
                part.has_flag( "WATCH" ) ||
                part.has_flag( "ALARMCLOCK" ) ||
                part.has_flag( VPFLAG_RECHARGE ) ||
+               part.has_flag( VPFLAG_RECHARGE_AIR ) ||
                part.has_flag( "VISION" ) ||
                part.has_flag( "POWER_TRANSFER" ) ||
                part.has_flag( "FAUCET" ) ||
@@ -1293,12 +1289,6 @@ bool veh_interact::overview( std::function<bool( const vehicle_part &pt )> enabl
         if( hotkey == '{' ) {
             hotkey = 'A';
         }
-
-        while( hotkey == 'c' || hotkey == 'g' || hotkey == 'j' || hotkey == 'k' || hotkey == 'l' ||
-               hotkey == 'p' || hotkey == 'q' || hotkey == 't' || hotkey == 'v' || hotkey == 'x' ||
-               hotkey == 'z' ) {
-            hotkey += 1;
-        }
         return hotkey;
     };
 
@@ -1426,17 +1416,15 @@ bool veh_interact::overview( std::function<bool( const vehicle_part &pt )> enabl
         } else if( pt.is_fuel_store() && !( pt.is_battery() || pt.is_reactor() ) && !pt.is_broken() ) {
             auto details = []( const vehicle_part & pt, const catacurses::window & w, int y ) {
                 if( pt.ammo_current() != "null" ) {
-                    const itype *pt_ammo_cur = item::find_type( pt.ammo_current() );
-                    auto stack = units::legacy_volume_factor / pt_ammo_cur->stack_size;
                     int offset = 1;
-                    std::string fmtstring = "%s  %5.1fL";
+                    std::string fmtstring = "%s  %6i";
                     if( pt.damage_percent() >= 0.5 ) {
-                        fmtstring = "%s  " + leak_marker + "%5.1fL" + leak_marker;
+                        fmtstring = "%s  " + leak_marker + "%6i" + leak_marker;
                         offset = 0;
                     }
-                    right_print( w, y, offset, pt_ammo_cur->color,
+                    right_print( w, y, offset, item::find_type( pt.ammo_current() )->color,
                                  string_format( fmtstring, item::nname( pt.ammo_current() ),
-                                                round_up( to_liter( pt.ammo_remaining() * stack ), 1 ) ) );
+                                                pt.ammo_remaining() ) );
                 }
             };
             opts.emplace_back( "TANK", &pt, action && enable &&

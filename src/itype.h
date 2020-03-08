@@ -443,11 +443,11 @@ struct islot_wheel {
 };
 
 struct fuel_explosion {
-    int explosion_chance_hot = 0;
-    int explosion_chance_cold = 0;
-    float explosion_factor = 0.0f;
-    bool fiery_explosion = false;
-    float fuel_size_factor = 0.0f;
+    int explosion_chance_hot;
+    int explosion_chance_cold;
+    float explosion_factor;
+    bool fiery_explosion;
+    float fuel_size_factor;
 };
 
 struct islot_fuel {
@@ -455,7 +455,7 @@ struct islot_fuel {
         /** Energy of the fuel (kilojoules per charge) */
         float energy = 0.0f;
         struct fuel_explosion explosion_data;
-        bool has_explode_data = false;
+        bool has_explode_data;
         std::string pump_terrain = "t_null";
 };
 
@@ -490,6 +490,10 @@ struct islot_gun : common_ranged_data {
      */
     int reload_noise_volume = 0;
 
+    // the amount of compressed air an air gun uses and can potentially contain
+    int compressed_air_used = 0;
+    int compressed_air_reservoir = 0;
+
     /** Maximum aim achievable using base weapon sights */
     int sight_dispersion = 30;
 
@@ -500,6 +504,7 @@ struct islot_gun : common_ranged_data {
      * If this uses UPS charges, how many (per shoot), 0 for no UPS charges at all.
      */
     int ups_charges = 0;
+    int air_charges = 0;
     /**
      * One in X chance for gun to require major cleanup after firing blackpowder shot.
      */
@@ -590,9 +595,11 @@ struct islot_gunmod : common_ranged_data {
 
     /** Increases base gun UPS consumption by this many times per shot */
     float ups_charges_multiplier = 1.0f;
+    float air_charges_multiplier = 1.0f;
 
     /** Increases base gun UPS consumption by this value per shot */
     int ups_charges_modifier = 0;
+    int air_charges_modifier = 0;
 
     /** Increases gun weight by this many times */
     float weight_multiplier = 1.0f;
@@ -655,6 +662,11 @@ struct islot_magazine {
 
 struct islot_battery {
     /** Maximum energy the battery can store */
+    units::energy max_capacity;
+};
+
+struct islot_air {
+    /** Maximum air the cylinder can store */
     units::energy max_capacity;
 };
 
@@ -825,6 +837,7 @@ struct itype {
         cata::value_ptr<islot_gunmod> gunmod;
         cata::value_ptr<islot_magazine> magazine;
         cata::value_ptr<islot_battery> battery;
+        cata::value_ptr<islot_air> air;
         cata::value_ptr<islot_bionic> bionic;
         cata::value_ptr<islot_ammo> ammo;
         cata::value_ptr<islot_seed> seed;
@@ -990,7 +1003,7 @@ struct itype {
         /** Volume above which the magazine starts to protrude from the item and add extra volume */
         units::volume magazine_well = 0_ml;
 
-        layer_level layer = layer_level::MAX_CLOTHING_LAYER;
+        layer_level layer;
 
         /**
          * How much insulation this item provides, either as a container, or as

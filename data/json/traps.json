@@ -360,15 +360,7 @@
     "difficulty": 10,
     "action": "landmine",
     "drops": [ "landmine" ],
-    "vehicle_data": {
-      "do_explosion": true,
-      "damage": 1000,
-      "shrapnel": 8,
-      "sound_volume": 10,
-      "sound": "Boom!",
-      "sound_type": "explosion",
-      "sound_variant": "default"
-    }
+    "vehicle_data": { "do_explosion": true, "damage": 1000, "shrapnel": 8, "sound_volume": 10 }
   },
   {
     "type": "trap",
@@ -382,15 +374,7 @@
     "difficulty": 10,
     "action": "landmine",
     "drops": [ "landmine" ],
-    "vehicle_data": {
-      "do_explosion": true,
-      "damage": 1000,
-      "shrapnel": 8,
-      "sound_volume": 10,
-      "sound": "Boom!",
-      "sound_type": "explosion",
-      "sound_variant": "default"
-    }
+    "vehicle_data": { "do_explosion": true, "damage": 1000, "shrapnel": 8, "sound_volume": 10 }
   },
   {
     "type": "trap",
@@ -511,15 +495,7 @@
     "difficulty": 7,
     "action": "boobytrap",
     "drops": [ "boobytrap" ],
-    "vehicle_data": {
-      "do_explosion": true,
-      "damage": 1000,
-      "shrapnel": 12,
-      "sound_volume": 18,
-      "sound": "Boom!",
-      "sound_type": "explosion",
-      "sound_variant": "default"
-    }
+    "vehicle_data": { "do_explosion": true, "damage": 1000, "shrapnel": 12, "sound_volume": 18 }
   },
   {
     "type": "trap",

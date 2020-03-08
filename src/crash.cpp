@@ -89,9 +89,7 @@ extern "C" {
     static void signal_handler( int sig )
     {
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
         signal( sig, SIG_DFL );
 #pragma GCC diagnostic pop
         const char *msg;
@@ -113,9 +111,7 @@ extern "C" {
         }
         log_crash( "Signal", msg );
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
         std::signal( SIGABRT, SIG_DFL );
 #pragma GCC diagnostic pop
         abort();

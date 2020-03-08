@@ -430,10 +430,10 @@ spell::spell( spell_id sp, int xp ) :
     experience( xp )
 {}
 
-void spell::set_message( const translation &msg )
-{
-    alt_message = msg;
-}
+spell::spell( spell_id sp, const translation &alt_msg ) :
+    type( sp ),
+    alt_message( alt_msg )
+{}
 
 spell_id spell::id() const
 {
@@ -1972,25 +1972,19 @@ void fake_spell::deserialize( JsonIn &jsin )
     load( data );
 }
 
-spell fake_spell::get_spell( int min_level_override ) const
+spell fake_spell::get_spell( int input_level ) const
 {
     spell sp( id );
-    // the max level this spell will be. can be optionally limited
-    int spell_limiter = max_level ? std::min( *max_level, sp.get_max_level() ) : sp.get_max_level();
-    // level is the minimum level the fake_spell will output
-    min_level_override = std::max( min_level_override, level );
-    if( min_level_override > spell_limiter ) {
-        // this override is for min level, and does not override max level
-        min_level_override = spell_limiter;
+    int lvl = std::min( input_level, sp.get_max_level() );
+    if( max_level ) {
+        lvl = std::min( lvl, *max_level );
     }
-    // the "level" of the fake spell is the goal, but needs to be clamped to min and max
-    int level_of_spell = clamp( level, min_level_override,  std::min( sp.get_max_level(),
-                                spell_limiter ) );
-    if( level > spell_limiter ) {
+    if( level > lvl ) {
         debugmsg( "ERROR: fake spell %s has higher min_level than max_level", id.c_str() );
         return sp;
     }
-    while( sp.get_level() < level_of_spell ) {
+    lvl = clamp( std::max( lvl, level ), level, lvl );
+    while( sp.get_level() < lvl ) {
         sp.gain_level();
     }
     return sp;

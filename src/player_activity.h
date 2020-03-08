@@ -34,13 +34,13 @@ class player_activity
         std::set<distraction_type> ignored_distractions;
     public:
         /** Total number of moves required to complete the activity */
-        int moves_total = 0;
+        int moves_total;
         /** The number of moves remaining in this activity before it is complete. */
-        int moves_left = 0;
+        int moves_left;
         /** An activity specific value. */
-        int index = 0;
+        int index;
         /** An activity specific value. */
-        int position = 0;
+        int position;
         /** An activity specific value. */
         std::string name;
         std::vector<item_location> targets;
@@ -53,7 +53,7 @@ class player_activity
         /** If true, the activity will be auto-resumed next time the player attempts
          *  an identical activity. This value is set dynamically.
          */
-        bool auto_resume = false;
+        bool auto_resume;
 
         player_activity();
         player_activity( activity_id, int turns = 0, int Index = -1, int pos = INT_MIN,

@@ -150,6 +150,31 @@ bool player::handle_gun_damage( item &it )
         return false;
     }
 
+    // begin air gun mechanics
+    const int air_max = it.type->gun->compressed_air_reservoir;
+    const int air_use = it.type->gun->compressed_air_used;
+    int air_charge = it.get_var( "air_charge", 0 );
+    if( air_use > 0 ) {
+        it.set_var( "air_max", air_max );
+        if( air_use > air_charge ) {
+            add_msg_player_or_npc(
+                _( "Your %s is drained of compressed air and won't fire!" ),
+                _( "<npcname>'s %s is drained of compressed air and won't fire!" ),
+                it.tname() );
+            return false;
+        }
+        if( it.get_contained().has_flag( "AIR_FITTING" ) ) {
+            add_msg_player_or_npc(
+                _( "Your %s is loaded with an air fitting, which cannot be fired!" ),
+                _( "<npcname>'s %s is loaded with an air fitting, which cannot be fired!" ),
+                it.tname() );
+            return false;
+        } else {
+            it.set_var( "air_charge", ( air_charge - air_use ) );
+        }
+    }
+    // end air gun mechanics
+
     const auto &curammo_effects = it.ammo_effects();
     const islot_gun &firing = *it.type->gun;
     // misfire chance based on dirt accumulation. Formula is designed to make chance of jam highly unlikely at low dirt levels, but levels increase geometrically as the dirt level reaches max (10,000). The number used is just a figure I found reasonable after plugging the number into excel and changing it until the probability made sense at high, medium, and low levels of dirt.
@@ -345,6 +370,10 @@ int player::fire_gun( const tripoint &target, int shots, item &gun )
 
     // cap our maximum burst size by the amount of UPS power left
     if( !gun.has_flag( flag_VEHICLE ) && gun.get_gun_ups_drain() > 0 ) {
+        shots = std::min( shots, static_cast<int>( charges_of( "UPS" ) / gun.get_gun_ups_drain() ) );
+    }
+
+    if( !gun.has_flag( flag_VEHICLE ) && gun.get_gun_air_drain() > 0 ) {
         shots = std::min( shots, static_cast<int>( charges_of( "UPS" ) / gun.get_gun_ups_drain() ) );
     }
 
@@ -778,7 +807,7 @@ static int draw_targeting_window( const catacurses::window &w_target, const std:
     // Reserve lines for aiming and firing instructions.
     if( mode == TARGET_MODE_FIRE ) {
         text_y -= ( 3 + aim_types.size() );
-    } else {
+    } else if( mode == TARGET_MODE_TURRET_MANUAL || mode == TARGET_MODE_TURRET ) {
         text_y -= 2;
     }
 
@@ -792,25 +821,13 @@ static int draw_targeting_window( const catacurses::window &w_target, const std:
         return keys.empty() ? fallback : keys.front();
     };
 
-    std::string label_fire;
-    if( mode == TARGET_MODE_THROW || mode == TARGET_MODE_THROW_BLIND ) {
-        label_fire = to_translation( "[Hotkey] to throw", "to throw" ).translated();
-    } else if( mode == TARGET_MODE_REACH ) {
-        label_fire = to_translation( "[Hotkey] to attack", "to attack" ).translated();
-    } else if( mode == TARGET_MODE_SPELL ) {
-        label_fire = to_translation( "[Hotkey] to cast the spell", "to cast" ).translated();
-    } else {
-        label_fire = to_translation( "[Hotkey] to fire", "to fire" ).translated();
+    if( mode == TARGET_MODE_FIRE || mode == TARGET_MODE_TURRET_MANUAL || mode == TARGET_MODE_TURRET ) {
+        mvwprintz( w_target, point( 1, text_y++ ), c_white, _( "[%s] Cycle targets; [%c] to fire." ),
+                   ctxt.get_desc( "NEXT_TARGET", 1 ), front_or( "FIRE", ' ' ) );
+        mvwprintz( w_target, point( 1, text_y++ ), c_white,
+                   _( "[%c] target self; [%c] toggle snap-to-target" ),
+                   front_or( "CENTER", ' ' ), front_or( "TOGGLE_SNAP_TO_TARGET", ' ' ) );
     }
-    const char *label_cycle_targets = _( "Cycle targets" );
-    mvwprintz( w_target, point( 1, text_y++ ), c_white, "[%s] %s; [%c] %s.",
-               ctxt.get_desc( "NEXT_TARGET", 1 ), label_cycle_targets,
-               front_or( "FIRE", ' ' ), label_fire
-             );
-
-    mvwprintz( w_target, point( 1, text_y++ ), c_white,
-               _( "[%c] target self; [%c] toggle snap-to-target" ),
-               front_or( "CENTER", ' ' ), front_or( "TOGGLE_SNAP_TO_TARGET", ' ' ) );
 
     if( mode == TARGET_MODE_FIRE ) {
         mvwprintz( w_target, point( 1, text_y++ ), c_white, _( "[%c] to steady your aim.  (10 moves)" ),
@@ -826,7 +843,7 @@ static int draw_targeting_window( const catacurses::window &w_target, const std:
                    front_or( "SWITCH_AIM", ' ' ) );
     }
 
-    if( mode == TARGET_MODE_FIRE || mode == TARGET_MODE_TURRET_MANUAL ) {
+    if( mode == TARGET_MODE_FIRE || mode == TARGET_MODE_TURRET_MANUAL || mode == TARGET_MODE_TURRET ) {
         mvwprintz( w_target, point( 1, text_y++ ), c_white, _( "[%c] to switch firing modes." ),
                    front_or( "SWITCH_MODE", ' ' ) );
         mvwprintz( w_target, point( 1, text_y++ ), c_white, _( "[%c] to reload/switch ammo." ),
@@ -1307,14 +1324,12 @@ std::vector<tripoint> target_handler::target_ui( player &pc, target_mode mode,
     ctxt.register_action( "TOGGLE_SNAP_TO_TARGET" );
     ctxt.register_action( "HELP_KEYBINDINGS" );
     ctxt.register_action( "QUIT" );
+    ctxt.register_action( "SWITCH_MODE" );
+    ctxt.register_action( "SWITCH_AMMO" );
     ctxt.register_action( "MOUSE_MOVE" );
     ctxt.register_action( "zoom_out" );
     ctxt.register_action( "zoom_in" );
 
-    if( mode == TARGET_MODE_FIRE || mode == TARGET_MODE_TURRET_MANUAL ) {
-        ctxt.register_action( "SWITCH_MODE" );
-        ctxt.register_action( "SWITCH_AMMO" );
-    }
     if( mode == TARGET_MODE_FIRE ) {
         ctxt.register_action( "AIM" );
         ctxt.register_action( "SWITCH_AIM" );

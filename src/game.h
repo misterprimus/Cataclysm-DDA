@@ -944,11 +944,11 @@ class game
         /** Used in main.cpp to determine what type of quit is being performed. */
         quit_status uquit;
         /** True if the game has just started or loaded, else false. */
-        bool new_game = false;
+        bool new_game;
 
         const scenario *scen;
         std::vector<monster> coming_to_stairs;
-        int monstairz = 0;
+        int monstairz;
 
         tripoint ter_view_p;
         catacurses::window w_terrain;
@@ -980,20 +980,20 @@ class game
         /** Type of lighting condition overlay to display */
         int displaying_lighting_condition = 0;
 
-        bool show_panel_adm = false;
-        bool right_sidebar = false;
-        bool fullscreen = false;
-        bool was_fullscreen = false;
+        bool show_panel_adm;
+        bool right_sidebar;
+        bool fullscreen;
+        bool was_fullscreen;
         bool auto_travel_mode = false;
         safe_mode_type safe_mode;
 
         //pixel minimap management
-        int pixel_minimap_option = 0;
-        int turnssincelastmon = 0; // needed for auto run mode
+        int pixel_minimap_option;
+        int turnssincelastmon; // needed for auto run mode
 
         weather_manager weather;
 
-        int mostseen = 0; // # of mons seen last turn; if this increases, set safe_mode to SAFE_MODE_STOP
+        int mostseen;  // # of mons seen last turn; if this increases, set safe_mode to SAFE_MODE_STOP
     private:
         shared_ptr_fast<player> u_shared_ptr;
 
@@ -1004,36 +1004,36 @@ class game
         std::string list_item_upvote;
         std::string list_item_downvote;
 
-        bool safe_mode_warning_logged = false;
-        bool bVMonsterLookFire = false;
+        bool safe_mode_warning_logged;
+        bool bVMonsterLookFire;
         character_id next_npc_id;
         std::list<shared_ptr_fast<npc>> active_npc;
-        int next_mission_id = 0;
+        int next_mission_id;
         std::set<character_id> follower_ids; // Keep track of follower NPC IDs
-        int moves_since_last_save = 0;
+        int moves_since_last_save;
         time_t last_save_timestamp;
         mutable std::array<float, OVERMAP_LAYERS> latest_lightlevels;
         // remoteveh() cache
         time_point remoteveh_cache_time;
         vehicle *remoteveh_cache;
         /** Has a NPC been spawned since last load? */
-        bool npcs_dirty = false;
+        bool npcs_dirty;
         /** Has anything died in this turn and needs to be cleaned up? */
-        bool critter_died = false;
+        bool critter_died;
         /** Was the player sleeping during this turn. */
-        bool player_was_sleeping = false;
+        bool player_was_sleeping;
         /** Is Zone manager open or not - changes graphics of some zone tiles */
         bool zones_manager_open = false;
 
         std::unique_ptr<special_game> gamemode;
 
-        int user_action_counter = 0; // Times the user has input an action
+        int user_action_counter; // Times the user has input an action
 
         /** How far the tileset should be zoomed out, 16 is default. 32 is zoomed in by x2, 8 is zoomed out by x0.5 */
-        int tileset_zoom = 0;
+        int tileset_zoom;
 
         /** Seed for all the random numbers that should have consistent randomness (weather). */
-        unsigned int seed = 0;
+        unsigned int seed;
 
         // Preview for auto move route
         std::vector<tripoint> destination_preview;

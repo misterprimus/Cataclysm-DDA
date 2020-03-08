@@ -2,15 +2,21 @@
 #ifndef ADVANCED_INV_AREA_H
 #define ADVANCED_INV_AREA_H
 
+#include "cursesdef.h"
 #include "point.h"
 #include "units.h"
+#include "game.h"
+#include "itype.h"
+#include "item_stack.h"
+#include "vehicle_selector.h"
 
 #include <array>
 #include <list>
+#include <map>
 #include <string>
 #include <vector>
 
-enum aim_location : char {
+enum aim_location {
     AIM_INVENTORY = 0,
     AIM_SOUTHWEST,
     AIM_SOUTH,
@@ -32,8 +38,6 @@ enum aim_location : char {
 };
 
 class advanced_inv_listitem;
-class item;
-class vehicle;
 
 /**
  * Defines the source of item stacks.
@@ -58,10 +62,10 @@ class advanced_inv_area
         tripoint pos;
         /** Can we put items there? Only checks if location is valid, not if
             selected container in pane is. For full check use canputitems() **/
-        bool canputitemsloc = false;
+        bool canputitemsloc;
         // vehicle pointer and cargo part index
-        vehicle *veh = nullptr;
-        int vstor = 0;
+        vehicle *veh;
+        int vstor;
         // description, e.g. vehicle name, label, or terrain
         std::array<std::string, 2> desc;
         // flags, e.g. FIRE, TRAP, WATER
@@ -70,7 +74,7 @@ class advanced_inv_area
         units::volume volume;
         units::mass weight;
         // maximal count / volume of items there.
-        int max_size = 0;
+        int max_size;
         // appears as part of the legend at the top right
         const std::string minimapname;
         // user commant that corresponds to this location
@@ -81,7 +85,12 @@ class advanced_inv_area
         advanced_inv_area( aim_location id ) : id( id ), relative_location( id ) {}
         advanced_inv_area( aim_location id, int hscreenx, int hscreeny, tripoint off,
                            const std::string &name, const std::string &shortname, std::string minimapname,
-                           std::string actionname, aim_location relative_location );
+                           std::string actionname, aim_location relative_location ) : id( id ),
+            hscreen( hscreenx, hscreeny ), off( off ), name( name ), shortname( shortname ),
+            canputitemsloc( false ), veh( nullptr ), vstor( -1 ), volume( 0_ml ),
+            weight( 0_gram ), max_size( 0 ), minimapname( minimapname ), actionname( actionname ),
+            relative_location( relative_location ) {
+        }
 
         void init();
 

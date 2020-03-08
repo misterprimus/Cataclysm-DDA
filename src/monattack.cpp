@@ -19,7 +19,6 @@
 #include "ballistics.h"
 #include "bodypart.h"
 #include "debug.h"
-#include "dispersion.h"
 #include "effect.h"
 #include "timed_event.h"
 #include "field.h"
@@ -428,7 +427,8 @@ bool mattack::rattle( monster *z )
     const int min_dist = z->friendly != 0 ? 1 : 4;
     Creature *target = &g->u;
     // Can't use attack_target - the snake has no target
-    if( rl_dist( z->pos(), target->pos() ) > min_dist ||
+    if( target == nullptr ||
+        rl_dist( z->pos(), target->pos() ) > min_dist ||
         !z->sees( *target ) ) {
         return false;
     }
@@ -2602,10 +2602,11 @@ bool mattack::grab( monster *z )
 
 bool mattack::grab_drag( monster *z )
 {
-    if( !z || !z->can_act() ) {
+    if( !z->can_act() ) {
         return false;
     }
     Creature *target = z->attack_target();
+    monster *zz = dynamic_cast<monster *>( target );
     if( target == nullptr || rl_dist( z->pos(), target->pos() ) > 1 ) {
         return false;
     }
@@ -2617,17 +2618,17 @@ bool mattack::grab_drag( monster *z )
         return false;
     }
 
+    player *foe = dynamic_cast< player * >( target );
+
     // First, grab the target
     grab( z );
 
     if( !target->has_effect( effect_grabbed ) ) { //Can't drag if isn't grabbed, otherwise try and move
         return false;
     }
-    const tripoint target_square = z->pos() - ( target->pos() - z->pos() );
+    tripoint target_square = z->pos() - ( target->pos() - z->pos() );
     if( z->can_move_to( target_square ) &&
         target->stability_roll() < dice( z->type->melee_sides, z->type->melee_dice ) ) {
-        player *foe = dynamic_cast<player *>( target );
-        monster *zz = dynamic_cast<monster *>( target );
         tripoint zpt = z->pos();
         z->move_to( target_square );
         if( !g->is_empty( zpt ) ) { //Cancel the grab if the space is occupied by something

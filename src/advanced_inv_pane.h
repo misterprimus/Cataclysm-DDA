@@ -1,16 +1,20 @@
 #pragma once
 #ifndef ADVANCED_INV_PANE_H
 #define ADVANCED_INV_PANE_H
-
 #include "cursesdef.h"
+#include "point.h"
+#include "units.h"
+#include "advanced_inv_area.h"
 #include "advanced_inv_listitem.h"
+#include "color.h"
+#include "uistate.h"
 
+#include <array>
 #include <functional>
-#include <map>
+#include <list>
 #include <string>
 #include <vector>
-
-enum aim_location : char;
+#include <utility>
 
 enum advanced_inv_sortby {
     SORTBY_NONE,
@@ -24,7 +28,6 @@ enum advanced_inv_sortby {
     SORTBY_SPOILAGE,
     SORTBY_PRICE
 };
-
 /**
  * Displayed pane, what is shown on the screen.
  */
@@ -63,8 +66,8 @@ class advanced_inventory_pane
         /**
          * Index of the selected item (index of @ref items),
          */
-        int index = 0;
-        advanced_inv_sortby sortby = advanced_inv_sortby::SORTBY_NONE;
+        int index;
+        advanced_inv_sortby sortby;
         catacurses::window window;
         std::vector<advanced_inv_listitem> items;
         /**
@@ -75,11 +78,11 @@ class advanced_inventory_pane
          * Whether to recalculate the content of this pane.
          * Implies @ref redraw.
          */
-        bool recalc = false;
+        bool recalc;
         /**
          * Whether to redraw this pane.
          */
-        bool redraw = false;
+        bool redraw;
 
         void add_items_from_area( advanced_inv_area &square, bool vehicle_override = false );
         /**

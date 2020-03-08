@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <type_traits>
 
+#include "optional.h"
 #include "units.h"
 
 class JsonIn;
@@ -513,19 +514,19 @@ int modulo( int v, int m );
 class on_out_of_scope
 {
     private:
-        std::function<void()> func;
+        cata::optional<std::function<void()>> func;
     public:
         on_out_of_scope( const std::function<void()> &func ) : func( func ) {
         }
 
         ~on_out_of_scope() {
             if( func ) {
-                func();
+                ( *func )();
             }
         }
 
         void cancel() {
-            func = nullptr;
+            func.reset();
         }
 };
 

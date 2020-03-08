@@ -77,10 +77,10 @@ struct construction {
         construction_str_id str_id = construction_str_id::NULL_ID();
 
         // Time in moves
-        int time = 0;
+        int time;
 
         // If true, the requirements are generated during finalization
-        bool vehicle_start = false;
+        bool vehicle_start;
 
         // Custom constructibility check
         std::function<bool( const tripoint & )> pre_special;
@@ -89,9 +89,9 @@ struct construction {
         // Custom error message display
         std::function<void( const tripoint & )> explain_failure;
         // Whether it's furniture or terrain
-        bool pre_is_furniture = false;
+        bool pre_is_furniture;
         // Whether it's furniture or terrain
-        bool post_is_furniture = false;
+        bool post_is_furniture;
 
         // NPC assistance adjusted
         int adjusted_time() const;

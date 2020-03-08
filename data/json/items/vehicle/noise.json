@@ -2,7 +2,7 @@
   {
     "type": "GENERIC",
     "id": "muffler",
-    "name": { "str": "muffler" },
+    "name": "muffler",
     "description": "A muffler from a car.  Very unwieldy as a weapon.  Useful in a few crafting recipes.",
     "weight": "9525 g",
     "to_hit": -10,

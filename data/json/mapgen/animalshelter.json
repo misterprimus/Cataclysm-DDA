@@ -2,7 +2,7 @@
   {
     "id": "animalshelter",
     "type": "vehicle_group",
-    "vehicles": [ [ "animalctrl", 300 ] ]
+    "vehicles": [ [ "animalctrl", 300 ], [ "cube_van", 100 ], [ "cube_van_cheap", 50 ] ]
   },
   {
     "id": "animalshelter_softdrug",

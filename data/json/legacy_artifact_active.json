@@ -209,7 +209,7 @@
   {
     "type": "SPELL",
     "id": "art_eff_pet",
-    "name": { "str": "Pet" },
+    "name": "Pet",
     "description": "Makes the target a pet",
     "valid_targets": [ "ally", "hostile" ],
     "effect": "target_attack",
@@ -461,7 +461,7 @@
   {
     "type": "SPELL",
     "id": "AEA_STORM_bolt",
-    "name": { "str": "Bolt" },
+    "name": "Bolt",
     "description": "One of the bolts thrown by AEA_STORM",
     "effect": "line_attack",
     "valid_targets": [ "ground", "hostile", "ally" ],
@@ -497,7 +497,7 @@
   {
     "type": "SPELL",
     "id": "AEA_SCREAM_morale",
-    "name": { "str": "Morale Scream" },
+    "name": "Morale Scream",
     "description": "Morale effect from AEA_SCREAM",
     "effect": "morale",
     "effect_str": "morale_scream",
@@ -543,7 +543,7 @@
   {
     "type": "SPELL",
     "id": "AEA_PULSE_bash_terrain",
-    "name": { "str": "Bash Terrain" },
+    "name": "Bash Terrain",
     "description": "Damages the terrain",
     "valid_targets": [ "self", "ally", "hostile", "ground" ],
     "effect": "bash",

@@ -294,6 +294,24 @@
     "based_on": "time"
   },
   {
+    "id": "ACT_HAND_PUMP_INTEGRAL",
+    "type": "activity_type",
+    "activity_level": "EXTRA_EXERCISE",
+    "verb": "pumping",
+    "suspendable": false,
+    "rooted": true,
+    "based_on": "time"
+  },
+  {
+    "id": "ACT_EQUALIZE",
+    "type": "activity_type",
+    "activity_level": "NO_EXERCISE",
+    "verb": "equalizing",
+    "suspendable": false,
+    "rooted": true,
+    "based_on": "time"
+  },
+  {
     "id": "ACT_HEATING",
     "type": "activity_type",
     "activity_level": "NO_EXERCISE",
@@ -589,13 +607,6 @@
     "based_on": "speed"
   },
   {
-    "id": "ACT_PRY_NAILS",
-    "type": "activity_type",
-    "activity_level": "MODERATE_EXERCISE",
-    "verb": "prying nails",
-    "based_on": "speed"
-  },
-  {
     "id": "ACT_CHOP_TREE",
     "type": "activity_type",
     "activity_level": "ACTIVE_EXERCISE",
@@ -629,13 +640,6 @@
     "type": "activity_type",
     "activity_level": "EXTRA_EXERCISE",
     "verb": "churning earth",
-    "based_on": "time"
-  },
-  {
-    "id": "ACT_PLANT_SEED",
-    "type": "activity_type",
-    "activity_level": "EXTRA_EXERCISE",
-    "verb": "planting seeds",
     "based_on": "time"
   },
   {

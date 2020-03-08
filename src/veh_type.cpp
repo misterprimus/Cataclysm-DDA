@@ -92,6 +92,7 @@ static const std::unordered_map<std::string, vpart_bitflags> vpart_bitflag_map =
     { "COOLER", VPFLAG_COOLER, },
     { "WATER_WHEEL", VPFLAG_WATER_WHEEL },
     { "RECHARGE", VPFLAG_RECHARGE },
+    { "RECHARGE_AIR", VPFLAG_RECHARGE_AIR },
     { "VISION", VPFLAG_EXTENDS_VISION },
     { "ENABLED_DRAINS_EPOWER", VPFLAG_ENABLED_DRAINS_EPOWER },
     { "AUTOCLAVE", VPFLAG_AUTOCLAVE },
@@ -896,22 +897,6 @@ bool string_id<vehicle_prototype>::is_valid() const
 {
     return vtypes.count( *this ) > 0;
 }
-
-vehicle_prototype::vehicle_prototype() = default;
-
-vehicle_prototype::vehicle_prototype( const std::string &name,
-                                      const std::vector<part_def> &parts,
-                                      const std::vector<vehicle_item_spawn> &item_spawns,
-                                      std::unique_ptr<vehicle> &&blueprint )
-    : name( name ), parts( parts ), item_spawns( item_spawns ),
-      blueprint( std::move( blueprint ) )
-{
-}
-
-vehicle_prototype::vehicle_prototype( vehicle_prototype && ) = default;
-vehicle_prototype::~vehicle_prototype() = default;
-
-vehicle_prototype &vehicle_prototype::operator=( vehicle_prototype && ) = default;
 
 /**
  *Caches a vehicle definition from a JsonObject to be loaded after itypes is initialized.

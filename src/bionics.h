@@ -78,9 +78,9 @@ struct bionic_data {
     */
     bool included = false;
     /**Factor modifiying weight capacity*/
-    float weight_capacity_modifier = 0.0f;
+    float weight_capacity_modifier;
     /**Bonus to weight capacity*/
-    units::mass weight_capacity_bonus = 0_gram;
+    units::mass weight_capacity_bonus;
     /**Map of stats and their corresponding bonuses passively granted by a bionic*/
     std::map<Character::stat, int> stat_bonus;
     /**This bionic draws power through a cable*/
@@ -88,11 +88,11 @@ struct bionic_data {
     /**Fuel types that can be used by this bionic*/
     std::vector<itype_id> fuel_opts;
     /**How much fuel this bionic can hold*/
-    int fuel_capacity = 0;
+    int fuel_capacity;
     /**Fraction of fuel energy converted to bionic power*/
-    float fuel_efficiency = 0.0f;
+    float fuel_efficiency;
     /**Fraction of fuel energy passively converted to bionic power*/
-    float passive_fuel_efficiency = 0.0f;
+    float passive_fuel_efficiency;
     /**Fraction of coverage diminishing fuel_efficiency*/
     cata::optional<float> coverage_power_gen_penalty;
     /**If true this bionic emits heat when producing power*/

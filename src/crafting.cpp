@@ -1339,6 +1339,8 @@ const requirement_data *player::select_requirements(
         return alternatives.front();
     }
 
+    std::vector<std::string> descriptions;
+
     uilist menu;
 
     for( const requirement_data *req : alternatives ) {
@@ -2004,7 +2006,7 @@ bool player::disassemble( item_location target, bool interactive )
     // If we're disassembling ammo, prompt the player to specify amount
     // This could be extended more generally in the future
     int num_dis = 0;
-    if( obj.is_ammo() && !r.has_flag( "UNCRAFT_BY_QUANTITY" ) ) {
+    if( obj.is_ammo() ) {
         string_input_popup popup_input;
         const std::string title = string_format( _( "Disassemble how many %s [MAX: %d]: " ),
                                   obj.type_name( 1 ), obj.charges );
@@ -2129,7 +2131,7 @@ void player::complete_disassemble( item_location &target, const recipe &dis )
 
     if( dis_item.count_by_charges() ) {
         // remove the charges that one would get from crafting it
-        if( org_item.is_ammo() && !dis.has_flag( "UNCRAFT_BY_QUANTITY" ) ) {
+        if( org_item.is_ammo() ) {
             //subtract selected number of rounds to disassemble
             org_item.charges -= activity.position;
         } else {

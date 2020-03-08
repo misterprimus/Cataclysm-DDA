@@ -7,6 +7,7 @@
 
 #include "explosion.h"
 #include "field_type.h"
+#include "type_id.h"
 
 class JsonObject;
 

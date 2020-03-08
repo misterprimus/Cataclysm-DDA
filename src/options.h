@@ -147,7 +147,7 @@ class options_manager
                 // The *untranslated* displayed option tool tip ( longer string ).
                 std::string sTooltip;
                 std::string sType;
-                bool verbose = false;
+                bool verbose;
 
                 std::string format;
 
@@ -164,25 +164,25 @@ class options_manager
                 std::vector<id_and_option> vItems;
                 std::string sDefault;
 
-                int iMaxLength = 0;
+                int iMaxLength;
 
                 //sType == "bool"
-                bool bSet = false;
-                bool bDefault = false;
+                bool bSet;
+                bool bDefault;
 
                 //sType == "int"
-                int iSet = 0;
-                int iMin = 0;
-                int iMax = 0;
-                int iDefault = 0;
+                int iSet;
+                int iMin;
+                int iMax;
+                int iDefault;
                 std::vector< std::tuple<int, std::string> > mIntValues;
 
                 //sType == "float"
-                float fSet = 0.0f;
-                float fMin = 0.0f;
-                float fMax = 0.0f;
-                float fDefault = 0.0f;
-                float fStep = 0.0f;
+                float fSet;
+                float fMin;
+                float fMax;
+                float fDefault;
+                float fStep;
         };
 
         using options_container = std::unordered_map<std::string, cOpt>;

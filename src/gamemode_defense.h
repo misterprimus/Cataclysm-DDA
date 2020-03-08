@@ -77,7 +77,7 @@ struct defense_game : public special_game {
 
         std::string special_wave_message( std::string name );
 
-        int current_wave = 0;
+        int current_wave;
 
         // What type of game is it?
         defense_style style;
@@ -85,41 +85,41 @@ struct defense_game : public special_game {
         defense_location location;
 
         // Total "level" of monsters in first wave
-        int initial_difficulty = 0;
+        int initial_difficulty;
         // Increased "level" of monsters per wave
-        int wave_difficulty = 0;
+        int wave_difficulty;
 
         // Cooldown / building / healing time
-        time_duration time_between_waves = 0_turns;
+        time_duration time_between_waves;
         // How many waves until we get to trade?
-        int waves_between_caravans = 0;
+        int waves_between_caravans;
 
         // How much cash do we start with?
-        int initial_cash = 0;
+        int initial_cash;
         // How much cash do we get per wave?
-        int cash_per_wave = 0;
+        int cash_per_wave;
         // How much does the above increase per wave?
-        int cash_increase = 0;
+        int cash_increase;
 
-        bool zombies = false;
-        bool specials = false;
-        bool spiders = false;
-        bool triffids = false;
-        bool robots = false;
-        bool subspace = false;
+        bool zombies;
+        bool specials;
+        bool spiders;
+        bool triffids;
+        bool robots;
+        bool subspace;
 
         // Do we need to fulfill hunger?
-        bool hunger = false;
+        bool hunger;
         // Do we need to fulfill thirst?
-        bool thirst = false;
+        bool thirst;
         // Do we need to sleep?
-        bool sleep = false;
+        bool sleep;
 
         // Do caravans offer the option of hiring a mercenary?
-        bool mercenaries = false;
+        bool mercenaries;
 
         // Allow save
-        bool allow_save = false;
+        bool allow_save;
 
         // Start defence location position on overmap
         tripoint defloc_pos;

@@ -60,7 +60,6 @@
 #include "text_snippets.h"
 #include "translations.h"
 #include "ui.h"
-#include "uistate.h"
 #include "veh_interact.h"
 #include "vehicle.h"
 #include "vpart_position.h"
@@ -102,6 +101,9 @@
 
 using namespace activity_handlers;
 
+static const activity_id ACT_HAND_PUMP_INTEGRAL( "ACT_HAND_PUMP_INTEGRAL" );
+static const activity_id ACT_EQUALIZE( "ACT_EQUALIZE" );
+
 const std::map< activity_id, std::function<void( player_activity *, player * )> >
 activity_handlers::do_turn_functions = {
     { ACT_BURROW, burrow_do_turn },
@@ -116,6 +118,8 @@ activity_handlers::do_turn_functions = {
     { ACT_START_FIRE, start_fire_do_turn },
     { ACT_VIBE, vibe_do_turn },
     { ACT_HAND_CRANK, hand_crank_do_turn },
+    { ACT_HAND_PUMP_INTEGRAL, hand_pump_integral_do_turn },
+    { ACT_EQUALIZE, equalize_do_turn },
     { ACT_OXYTORCH, oxytorch_do_turn },
     { ACT_AIM, aim_do_turn },
     { ACT_PICKUP, pickup_do_turn },
@@ -151,7 +155,6 @@ activity_handlers::do_turn_functions = {
     { ACT_DISMEMBER, butcher_do_turn },
     { ACT_DISSECT, butcher_do_turn },
     { ACT_HACKSAW, hacksaw_do_turn },
-    { ACT_PRY_NAILS, pry_nails_do_turn },
     { ACT_CHOP_TREE, chop_tree_do_turn },
     { ACT_CHOP_LOGS, chop_tree_do_turn },
     { ACT_TIDY_UP, tidy_up_do_turn },
@@ -194,7 +197,6 @@ activity_handlers::finish_functions = {
     { ACT_START_FIRE, start_fire_finish },
     { ACT_TRAIN, train_finish },
     { ACT_CHURN, churn_finish },
-    { ACT_PLANT_SEED, plant_seed_finish },
     { ACT_VEHICLE, vehicle_finish },
     { ACT_START_ENGINES, start_engines_finish },
     { ACT_OXYTORCH, oxytorch_finish },
@@ -226,7 +228,6 @@ activity_handlers::finish_functions = {
     { ACT_CONSUME_MEDS_MENU, eat_menu_finish },
     { ACT_WASH, washing_finish },
     { ACT_HACKSAW, hacksaw_finish },
-    { ACT_PRY_NAILS, pry_nails_finish },
     { ACT_CHOP_TREE, chop_tree_finish },
     { ACT_MILK, milk_finish },
     { ACT_CHOP_LOGS, chop_logs_finish },
@@ -853,7 +854,7 @@ static void butchery_drops_harvest( item *corpse_item, const mtype &mt, player &
             }
         }
 
-        if( entry.type != "bionic_group" ) {
+        if( action != DISSECT && entry.type != "bionic_group" ) {
             // divide total dropped weight by drop's weight to get amount
             if( entry.mass_ratio != 0.00f ) {
                 // apply skill before converting to items, but only if mass_ratio is defined
@@ -1283,9 +1284,9 @@ void activity_handlers::milk_finish( player_activity *act, player *p )
         debugmsg( "could not find source creature for liquid transfer" );
         return;
     }
-    auto milked_item = source_mon->ammo.find( source_mon->type->starting_ammo.begin()->first );
+    auto milked_item = source_mon->ammo.find( "milk_raw" );
     if( milked_item == source_mon->ammo.end() ) {
-        debugmsg( "animal has no milkable ammo type" );
+        debugmsg( "animal has no milk ammo type" );
         return;
     }
     if( milked_item->second <= 0 ) {
@@ -1565,8 +1566,9 @@ void activity_handlers::forage_finish( player_activity *act, player *p )
     act->set_to_null();
 }
 
-void activity_handlers::generic_game_do_turn( player_activity * /*act*/, player *p )
+void activity_handlers::generic_game_do_turn( player_activity *act, player *p )
 {
+    ( void )act;
     if( calendar::once_every( 1_minutes ) ) {
         p->add_morale( MORALE_GAME, 4, 60 );
     }
@@ -2116,6 +2118,87 @@ void activity_handlers::hand_crank_do_turn( player_activity *act, player *p )
 
 }
 
+void activity_handlers::hand_pump_integral_do_turn( player_activity *act, player *p )
+{
+    int air_increase = 50;
+    item &hand_pump_integral_item = p->i_at( act->position );
+    // gun section
+    if( hand_pump_integral_item.is_gun() ) {
+        air_increase = std::min( static_cast<int>
+                                 ( hand_pump_integral_item.type->gun->compressed_air_reservoir -
+                                   hand_pump_integral_item.get_var( "air_charge",
+                                           0 ) ), 50 );
+        hand_pump_integral_item.set_var( "air_max",
+                                         hand_pump_integral_item.type->gun->compressed_air_reservoir );
+        if( calendar::once_every( 1_seconds ) && hand_pump_integral_item.get_var( "air_charge",
+                0 ) < hand_pump_integral_item.type->gun->compressed_air_reservoir ) {
+            p->mod_stamina( -500 );
+            if( hand_pump_integral_item.get_var( "air_charge",
+                                                 0 ) < hand_pump_integral_item.type->gun->compressed_air_reservoir ) {
+                hand_pump_integral_item.set_var( "air_charge", hand_pump_integral_item.get_var( "air_charge",
+                                                 0 ) + air_increase );
+            } else {
+                act->moves_left = 0;
+                add_msg( m_info, _( "You've filled the reservoir completely." ) );
+            }
+        }
+    }
+    // end gun section
+    //tool section
+    if( hand_pump_integral_item.is_tool() ) {
+        act->moves_left -= 100;
+        item &hand_crank_item_air = p->i_at( act->position );
+        air_increase = std::min( static_cast<int>( hand_crank_item_air.ammo_capacity() -
+                                 hand_crank_item_air.ammo_remaining() ), 50 );
+        if( calendar::once_every( 144_seconds ) ) {
+            p->mod_fatigue( 1 );
+            if( hand_crank_item_air.ammo_capacity() > hand_crank_item_air.ammo_remaining() ) {
+                hand_crank_item_air.ammo_set( "air", hand_crank_item_air.ammo_remaining() + air_increase );
+            }
+        }
+    }
+    // end tool section
+    if( p->get_fatigue() >= DEAD_TIRED ) {
+        act->moves_left = 0;
+        add_msg( m_info, _( "You're too exhausted to keep pumping." ) );
+    }
+
+}
+
+void activity_handlers::equalize_do_turn( player_activity *act, player *p )
+{
+    if( p->is_armed() ) {
+        if( p->weapon.type->gun->compressed_air_reservoir > 0 ) {
+
+            item &equalize_item = p->i_at( act->position );
+            int max_air_transfer = std::min( equalize_item.ammo_remaining(),
+                                             ( static_cast<int>( p->weapon.type->gun->compressed_air_reservoir ) -
+                                               static_cast<int>( p->weapon.get_var( "air_charge", 0 ) ) ) );
+            if( calendar::once_every( 1_seconds ) ) {
+                if( max_air_transfer > 0 ) {
+                    if( p->weapon.get_contained().has_flag( "AIR_FITTING" ) ) {
+                        equalize_item.ammo_set( "air", equalize_item.ammo_remaining() - max_air_transfer );
+                        p->weapon.set_var( "air_charge", p->weapon.get_var( "air_charge", 0 ) + max_air_transfer );
+                    } else {
+                        act->moves_left = 0;
+                        add_msg( m_info,
+                                 _( "You must attach the external air pump using an air fitting in place of the magazine first!" ) );
+                    }
+                } else {
+                    act->moves_left = 0;
+                    add_msg( m_info, _( "Pressure is already equalized as much as possible!" ) );
+                }
+            }
+        } else {
+            act->moves_left = 0;
+            add_msg( m_info, _( "You must wield a weapon with an air reservoir!" ) );
+        }
+    } else {
+        act->moves_left = 0;
+        add_msg( m_info, _( "You must wield a weapon with an air reservoir!" ) );
+    }
+}
+
 void activity_handlers::vibe_do_turn( player_activity *act, player *p )
 {
     //Using a vibrator takes time (10 minutes), not speed
@@ -2557,16 +2640,11 @@ void activity_handlers::heat_item_finish( player_activity *act, player *p )
         return;
     }
     item_location &loc = act->targets[ 0 ];
-    item *const heat = loc.get_item();
+    item *heat = loc.get_item();
     if( heat == nullptr ) {
         return;
     }
-    item *const food = heat->get_food();
-    if( food == nullptr ) {
-        debugmsg( "item %s is not food", heat->typeId() );
-        return;
-    }
-    item &target = *food;
+    item &target = *heat->get_food();
     if( target.item_tags.count( "FROZEN" ) ) {
         target.apply_freezerburn();
         if( target.has_flag( flag_EATEN_COLD ) ) {
@@ -2929,6 +3007,7 @@ void activity_handlers::fish_do_turn( player_activity *act, player *p )
 
 void activity_handlers::fish_finish( player_activity *act, player *p )
 {
+    ( void )p;
     act->set_to_null();
     p->add_msg_if_player( m_info, _( "You finish fishing" ) );
     if( !p->backlog.empty() && p->backlog.front().id() == ACT_MULTIPLE_FISH ) {
@@ -2985,7 +3064,7 @@ void activity_handlers::read_do_turn( player_activity *act, player *p )
 
 void activity_handlers::read_finish( player_activity *act, player *p )
 {
-    if( !act || !act->targets.front() ) {
+    if( !act->targets.front() ) {
         debugmsg( "Lost target of ACT_READ" );
         return;
     }
@@ -3365,37 +3444,6 @@ void activity_handlers::churn_finish( player_activity *act, player *p )
     resume_for_multi_activities( *p );
 }
 
-void activity_handlers::plant_seed_finish( player_activity *act, player *p )
-{
-    tripoint examp = g->m.getlocal( act->placement );
-    const std::string seed_id = act->str_values[0];
-    std::list<item> used_seed;
-    if( item::count_by_charges( seed_id ) ) {
-        used_seed = p->use_charges( seed_id, 1 );
-    } else {
-        used_seed = p->use_amount( seed_id, 1 );
-    }
-    if( !used_seed.empty() ) {
-        used_seed.front().set_age( 0_turns );
-        if( used_seed.front().has_var( "activity_var" ) ) {
-            used_seed.front().erase_var( "activity_var" );
-        }
-        used_seed.front().set_flag( flag_HIDDEN_ITEM );
-        g->m.add_item_or_charges( examp, used_seed.front() );
-        if( g->m.has_flag_furn( flag_PLANTABLE, examp ) ) {
-            g->m.furn_set( examp, furn_str_id( g->m.furn( examp )->plant->transform ) );
-        } else {
-            g->m.set( examp, t_dirt, f_plant_seed );
-        }
-        p->add_msg_player_or_npc( _( "You plant some %s." ), _( "<npcname> plants some %s." ),
-                                  item::nname( seed_id ) );
-    }
-    // Go back to what we were doing before
-    // could be player zone activity, or could be NPC multi-farming
-    act->set_to_null();
-    resume_for_multi_activities( *p );
-}
-
 void activity_handlers::build_do_turn( player_activity *act, player *p )
 {
     partial_con *pc = g->m.partial_con_at( g->m.getlocal( act->placement ) );
@@ -3698,61 +3746,6 @@ void activity_handlers::hacksaw_finish( player_activity *act, player *p )
     p->mod_fatigue( 10 );
     p->add_msg_if_player( m_good, _( "You finish cutting the metal." ) );
 
-    act->set_to_null();
-}
-
-void activity_handlers::pry_nails_do_turn( player_activity *act, player * )
-{
-    sfx::play_activity_sound( "tool", "hammer", sfx::get_heard_volume( act->placement ) );
-}
-
-void activity_handlers::pry_nails_finish( player_activity *act, player *p )
-{
-    const tripoint &pnt = act->placement;
-    const ter_id type = g->m.ter( pnt );
-
-    int nails = 0;
-    int boards = 0;
-    ter_id newter;
-    if( type == t_fence ) {
-        nails = 6;
-        boards = 3;
-        newter = t_fence_post;
-        p->add_msg_if_player( _( "You pry out the fence post." ) );
-    } else if( type == t_window_boarded ) {
-        nails = 8;
-        boards = 4;
-        newter = t_window_frame;
-        p->add_msg_if_player( _( "You pry the boards from the window." ) );
-    } else if( type == t_window_boarded_noglass ) {
-        nails = 8;
-        boards = 4;
-        newter = t_window_empty;
-        p->add_msg_if_player( _( "You pry the boards from the window frame." ) );
-    } else if( type == t_door_boarded || type == t_door_boarded_damaged ||
-               type == t_rdoor_boarded || type == t_rdoor_boarded_damaged ||
-               type == t_door_boarded_peep || type == t_door_boarded_damaged_peep ) {
-        nails = 8;
-        boards = 4;
-        if( type == t_door_boarded ) {
-            newter = t_door_c;
-        } else if( type == t_door_boarded_damaged ) {
-            newter = t_door_b;
-        } else if( type == t_door_boarded_peep ) {
-            newter = t_door_c_peep;
-        } else if( type == t_door_boarded_damaged_peep ) {
-            newter = t_door_b_peep;
-        } else if( type == t_rdoor_boarded ) {
-            newter = t_rdoor_c;
-        } else { // if (type == t_rdoor_boarded_damaged)
-            newter = t_rdoor_b;
-        }
-        p->add_msg_if_player( _( "You pry the boards from the door." ) );
-    }
-    p->practice( skill_fabrication, 1, 1 );
-    g->m.spawn_item( p->pos(), "nail", 0, nails );
-    g->m.spawn_item( p->pos(), "2x4", boards );
-    g->m.ter_set( pnt, newter );
     act->set_to_null();
 }
 

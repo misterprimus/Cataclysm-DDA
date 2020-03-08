@@ -89,6 +89,9 @@
 
 class npc_class;
 
+static const std::string flag_RECHARGE_AIR( "RECHARGE_AIR" );
+static const std::string flag_USE_AIR( "USE_AIR" );
+
 using npc_class_id = string_id<npc_class>;
 
 std::string rad_badge_color( const int rad )
@@ -231,7 +234,7 @@ item::item( const itype *type, time_point turn, int qty ) : type( type ), bday( 
     }
     // item always has any relic properties from itype.
     if( type->relic_data ) {
-        relic_data = type->relic_data;
+        relic_data = *type->relic_data;
     }
 }
 
@@ -301,12 +304,6 @@ item::item( const recipe *rec, int qty, std::list<item> items, std::vector<item_
         }
     }
 }
-
-item::item( const item & ) = default;
-item::item( item && ) = default;
-item::~item() = default;
-item &item::operator=( const item & ) = default;
-item &item::operator=( item && ) = default;
 
 item item::make_corpse( const mtype_id &mt, time_point turn, const std::string &name,
                         const int upgrade_time )
@@ -2944,6 +2941,14 @@ void item::final_info( std::vector<iteminfo> &info, const iteminfo_query *parts,
                                          "recharging station</neutral>. You could charge it with "
                                          "<info>standard batteries</info>, but unloading it is "
                                          "impossible." ) ) );
+        } else if( has_flag( flag_RECHARGE_AIR ) &&
+                   parts->test( iteminfo_parts::DESCRIPTION_RECHARGE_AIR_CAPABLE ) ) {
+            info.push_back( iteminfo( "DESCRIPTION",
+                                      _( "* This tool has a <info>refillable compressed air container</info> "
+                                         "and can be recharged in any <neutral>compressed air "
+                                         "recharging station</neutral>. You could charge it with "
+                                         "<info>compressed air</info>, but unloading it is "
+                                         "impossible." ) ) );
         } else if( has_flag( flag_USES_BIONIC_POWER ) ) {
             info.emplace_back( "DESCRIPTION",
                                _( "* This tool <info>runs on bionic power</info>." ) );
@@ -3805,7 +3810,15 @@ void item::on_damage( int, damage_type )
 std::string item::tname( unsigned int quantity, bool with_prefix, unsigned int truncate ) const
 {
     int dirt_level = get_var( "dirt", 0 ) / 2000;
+    int airmax = 0;
+    int air_level = 0;
+    if( is_gun() ) {
+        airmax = type->gun->compressed_air_reservoir;
+        air_level = round( ( ( static_cast<double>( get_var( "air_charge",
+                               0 ) ) ) / ( ( static_cast<double>( airmax ) / 5 ) + 1 ) ) );
+    }
     std::string dirt_symbol;
+    std::string air_symbol;
     // TODO: MATERIALS put this in json
 
     // these symbols are unicode square characeters of different heights, representing a rough
@@ -3833,6 +3846,33 @@ std::string item::tname( unsigned int quantity, bool with_prefix, unsigned int t
         default:
             dirt_symbol = "";
     }
+    // same as above (dirt), but for compressed air in the gun
+    if( airmax > 0 ) {
+        switch( air_level ) {
+            case 0:
+                air_symbol = "<color_red>\u2349</color>"; // open circle with slash
+                break;
+            case 1:
+                air_symbol = "<color_light_red>\u25CB</color>"; // open circle
+                break;
+            case 2:
+                air_symbol = "<color_yellow>\u25D4</color>"; // quarter circle
+                break;
+            case 3:
+                air_symbol = "<color_white>\u25D1</color>"; // half circle
+                break;
+            case 4:
+                air_symbol = "<color_white>\u25D5</color>"; // 3q circle
+                break;
+            case 5:
+                air_symbol = "<color_green>\u26AB</color>"; // full circle
+                break;
+            default:
+                air_symbol = "";
+        }
+    } else {
+        air_symbol = "";
+    }
     std::string damtext;
 
     // for portions of string that have <color_ etc in them, this aims to truncate the whole string correctly
@@ -3846,7 +3886,7 @@ std::string item::tname( unsigned int quantity, bool with_prefix, unsigned int t
             truncate_override = utf8_width( damtext, false ) - utf8_width( damtext, true );
         }
     }
-    if( !faults.empty() ) {
+    if( !faults.empty() || airmax > 0 ) {
         bool silent = true;
         for( const auto &fault : faults ) {
             if( !fault->has_flag( flag_SILENT ) ) {
@@ -3855,9 +3895,9 @@ std::string item::tname( unsigned int quantity, bool with_prefix, unsigned int t
             }
         }
         if( silent ) {
-            damtext.insert( 0, dirt_symbol );
+            damtext.insert( 0, dirt_symbol + air_symbol );
         } else {
-            damtext.insert( 0, _( "faulty " ) + dirt_symbol );
+            damtext.insert( 0, _( "faulty " ) + dirt_symbol + air_symbol );
         }
     }
 
@@ -4055,7 +4095,7 @@ std::string item::tname( unsigned int quantity, bool with_prefix, unsigned int t
 }
 
 std::string item::display_money( unsigned int quantity, unsigned int total,
-                                 const cata::optional<unsigned int> &selected ) const
+                                 cata::optional<unsigned int> selected ) const
 {
     if( selected ) {
         //~ This is a string to display the selected and total amount of money in a stack of cash cards.
@@ -4758,19 +4798,13 @@ bool item::goes_bad() const
     return is_food() && get_comestible()->spoils != 0_turns;
 }
 
-bool item::goes_bad_after_opening() const
-{
-    return goes_bad() || ( type->container && type->container->preserves &&
-                           !contents.empty() && contents.front().goes_bad() );
-}
-
 time_duration item::get_shelf_life() const
 {
     if( goes_bad() ) {
         if( is_food() ) {
             return get_comestible()->spoils;
         } else if( is_corpse() ) {
-            return 24_hours;
+            return CORPSE_ROT_TIME;
         }
     }
     return 0_turns;
@@ -7227,6 +7261,9 @@ int item::units_remaining( const Character &ch, int limit ) const
     if( res < limit && has_flag( flag_USE_UPS ) ) {
         res += ch.charges_of( "UPS", limit - res );
     }
+    if( res < limit && has_flag( flag_USE_AIR ) ) {
+        res += ch.charges_of( "air", limit - res );
+    }
 
     return std::min( static_cast<int>( res ), limit );
 }
@@ -8960,7 +8997,7 @@ bool item::process_cable( player *carrier, const tripoint &pos )
     }
 
     if( !g->m.veh_at( *source ) || ( source->z != g->get_levz() && !g->m.has_zlevels() ) ) {
-        if( carrier->has_item( *this ) ) {
+        if( carrier != nullptr && carrier->has_item( *this ) ) {
             carrier->add_msg_if_player( m_bad, _( "You notice the cable has come loose!" ) );
         }
         reset_cable( carrier );
@@ -8972,7 +9009,7 @@ bool item::process_cable( player *carrier, const tripoint &pos )
     charges = max_charges - distance;
 
     if( charges < 1 ) {
-        if( carrier->has_item( *this ) ) {
+        if( carrier != nullptr && carrier->has_item( *this ) ) {
             carrier->add_msg_if_player( m_bad, _( "The over-extended cable breaks loose!" ) );
         }
         reset_cable( carrier );
@@ -9417,6 +9454,21 @@ int item::get_gun_ups_drain() const
             multiplier *= mod->type->gunmod->ups_charges_multiplier;
         }
         draincount = ( type->gun->ups_charges * multiplier ) + modifier;
+    }
+    return draincount;
+}
+
+int item::get_gun_air_drain() const
+{
+    int draincount = 0;
+    if( type->gun ) {
+        int modifier = 0;
+        float multiplier = 1.0f;
+        for( const item *mod : gunmods() ) {
+            modifier += mod->type->gunmod->air_charges_modifier;
+            multiplier *= mod->type->gunmod->air_charges_multiplier;
+        }
+        draincount = ( type->gun->air_charges * multiplier ) + modifier;
     }
     return draincount;
 }

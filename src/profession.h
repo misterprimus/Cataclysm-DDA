@@ -54,7 +54,7 @@ class profession
         translation _name_female;
         translation _description_male;
         translation _description_female;
-        signed int _point_cost = 0;
+        signed int _point_cost;
 
         // TODO: In professions.json, replace lists of itypes (legacy) with item groups
         itypedecvec legacy_starting_items;

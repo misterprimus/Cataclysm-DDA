@@ -20,7 +20,6 @@
 #include "lightmap.h"
 #include "math_defines.h"
 #include "optional.h"
-#include "pixel_minimap_projectors.h"
 
 #include <algorithm>
 #include <array>
