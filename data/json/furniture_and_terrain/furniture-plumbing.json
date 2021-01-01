@@ -24,6 +24,14 @@
         { "item": "pipe_fittings", "count": [ 0, 2 ] },
         { "item": "ceramic_shard", "count": [ 6, 18 ] }
       ]
+    },
+    "deconstruct": {
+      "items": [
+        { "item": "cu_pipe", "count": 1 },
+        { "item": "water_faucet", "count": 1 },
+        { "item": "pipe_fittings", "count": 2 },
+        { "item": "ceramic_shard", "count": 18 }
+      ]
     }
   },
   {
@@ -51,6 +59,15 @@
         { "item": "ceramic_shard", "count": [ 2, 6 ] },
         { "item": "glass_shard", "count": [ 8, 16 ] }
       ]
+    },
+    "deconstruct": {
+      "items": [
+        { "item": "cu_pipe", "count": 2 },
+        { "item": "scrap_copper", "count": 2 },
+        { "item": "pipe_fittings", "count": 2 },
+        { "item": "ceramic_shard", "count": 6 },
+        { "item": "glass_shard", "count": 16 }
+      ]
     }
   },
   {
@@ -76,6 +93,14 @@
         { "item": "pipe_fittings", "count": [ 0, 2 ] },
         { "item": "ceramic_shard", "count": [ 2, 8 ] }
       ]
+    },
+    "deconstruct": {
+      "items": [
+        { "item": "cu_pipe", "count": 1 },
+        { "item": "water_faucet", "count": 1 },
+        { "item": "pipe_fittings", "count": [ 2, 2 ] },
+        { "item": "ceramic_shard", "count": [ 8, 8 ] }
+      ]
     }
   },
   {
@@ -96,6 +121,9 @@
       "sound": "porcelain breaking!",
       "sound_fail": "whunk!",
       "items": [ { "item": "cu_pipe", "prob": 50 }, { "item": "ceramic_shard", "count": [ 2, 8 ] }, { "item": "wax", "count": 1 } ]
+    },
+    "deconstruct": {
+      "items": [ { "item": "cu_pipe", "count": 1 }, { "item": "ceramic_shard", "count": 8 }, { "item": "wax", "count": 1 } ]
     }
   },
   {
