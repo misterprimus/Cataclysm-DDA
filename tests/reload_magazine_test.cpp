@@ -49,7 +49,7 @@ TEST_CASE( "reload_magazine", "[magazine] [visitable] [item] [item_location] [re
     CHECK( mag_cap > 0 );
 
     avatar &player_character = get_avatar();
-    player_character.worn.clear();
+    player_character.clear_worn();
     player_character.inv->clear();
     player_character.remove_weapon();
     player_character.wear_item( item( "backpack" ) ); // so we don't drop anything
@@ -315,7 +315,7 @@ TEST_CASE( "reload_magazine", "[magazine] [visitable] [item] [item_location] [re
                     item_location another_mag = player_character.i_add( item( mag_id ) );
                     another_mag->ammo_set( ammo_id, mag_cap );
                     std::vector<item::reload_option> ammo_list;
-                    CHECK( player_character.list_ammo( *gun, ammo_list, false ) );
+                    CHECK( player_character.list_ammo( gun, ammo_list, false ) );
                     CHECK( !ammo_list.empty() );
                     bool ok = gun->reload( player_character, another_mag, 1 );
                     THEN( "the gun is now loaded with the full magazine" ) {
@@ -344,7 +344,7 @@ TEST_CASE( "reload_revolver", "[visitable] [item] [item_location] [reload]" )
     CHECK( alt_ammo != bad_ammo );
 
     Character &player_character = get_player_character();
-    player_character.worn.clear();
+    player_character.clear_worn();
     player_character.inv->clear();
     player_character.remove_weapon();
     player_character.wear_item( item( "backpack" ) ); // so we don't drop anything

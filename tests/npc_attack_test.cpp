@@ -65,7 +65,7 @@ static monster *spawn_zombie_at_range( const int range )
 }
 } // namespace npc_attack_setup
 
-TEST_CASE( "NPC faces zombies", "[npc_attack]" )
+TEST_CASE( "NPC_faces_zombies", "[npc_attack]" )
 {
     get_player_character().setpos( main_npc_start_tripoint );
     clear_map_and_put_player_underground();
@@ -81,7 +81,7 @@ TEST_CASE( "NPC faces zombies", "[npc_attack]" )
         WHEN( "NPC only has a chef knife" ) {
             item weapon( "knife_chef" );
             main_npc.set_wielded_item( weapon );
-            REQUIRE( main_npc.get_wielded_item().typeId() == itype_knife_chef );
+            REQUIRE( main_npc.get_wielded_item()->typeId() == itype_knife_chef );
 
             THEN( "NPC attempts to melee the enemy target" ) {
                 main_npc.evaluate_best_weapon( zombie );
@@ -140,7 +140,7 @@ TEST_CASE( "NPC faces zombies", "[npc_attack]" )
         WHEN( "NPC only has a bunch of rocks" ) {
             item weapon( "rock" );
             main_npc.set_wielded_item( weapon );
-            REQUIRE( main_npc.get_wielded_item().typeId() == itype_rock );
+            REQUIRE( main_npc.get_wielded_item()->typeId() == itype_rock );
 
             THEN( "NPC doesn't bother throwing the rocks so close" ) {
                 main_npc.evaluate_best_weapon( zombie );
@@ -150,17 +150,17 @@ TEST_CASE( "NPC faces zombies", "[npc_attack]" )
             }
         }
         WHEN( "NPC has power armor" ) {
-            main_npc.worn.clear();
+            main_npc.clear_worn();
 
             item armor( "power_armor_basic" );
-            cata::optional<std::list<item>::iterator> wear_success = main_npc.wear_item( armor );
+            std::optional<std::list<item>::iterator> wear_success = main_npc.wear_item( armor );
             REQUIRE( wear_success );
 
             // If the flag gets removed from power armor, some other item with the flag will need to replace it.
             REQUIRE( main_npc.worn_with_flag( flag_COMBAT_TOGGLEABLE ) );
 
             WHEN( "NPC has a UPS for their armor" ) {
-                item ps( "UPS_off" );
+                item ps( "UPS_ON" );
                 item battery( "heavy_plus_battery_cell" );
                 battery.ammo_set( battery.ammo_default(), battery.ammo_capacity( ammo_battery ) );
 
@@ -188,10 +188,10 @@ TEST_CASE( "NPC faces zombies", "[npc_attack]" )
             }
         }
         WHEN( "NPC has a headlamp" ) {
-            main_npc.worn.clear();
+            main_npc.clear_worn();
 
             item headlamp( "wearable_light" );
-            cata::optional<std::list<item>::iterator> wear_success = main_npc.wear_item( headlamp );
+            std::optional<std::list<item>::iterator> wear_success = main_npc.wear_item( headlamp );
             REQUIRE( wear_success );
 
             // If the flag gets added, some other item without the flag will need to replace it.
@@ -211,7 +211,7 @@ TEST_CASE( "NPC faces zombies", "[npc_attack]" )
         WHEN( "NPC only has a chef knife" ) {
             item weapon( "knife_chef" );
             main_npc.set_wielded_item( weapon );
-            REQUIRE( main_npc.get_wielded_item().typeId() == itype_knife_chef );
+            REQUIRE( main_npc.get_wielded_item()->typeId() == itype_knife_chef );
 
             THEN( "NPC attempts to melee the enemy target" ) {
                 main_npc.evaluate_best_weapon( zombie );
@@ -228,7 +228,7 @@ TEST_CASE( "NPC faces zombies", "[npc_attack]" )
         WHEN( "NPC only has a bunch of rocks" ) {
             item weapon( "rock" );
             main_npc.set_wielded_item( weapon );
-            REQUIRE( main_npc.get_wielded_item().typeId() == itype_rock );
+            REQUIRE( main_npc.get_wielded_item()->typeId() == itype_rock );
 
             THEN( "NPC throws rocks at the zombie" ) {
                 main_npc.evaluate_best_weapon( zombie );
@@ -245,7 +245,7 @@ TEST_CASE( "NPC faces zombies", "[npc_attack]" )
         WHEN( "NPC only has a chef knife" ) {
             item weapon( "knife_chef" );
             main_npc.set_wielded_item( weapon );
-            REQUIRE( main_npc.get_wielded_item().typeId() == itype_knife_chef );
+            REQUIRE( main_npc.get_wielded_item()->typeId() == itype_knife_chef );
 
             WHEN( "NPC is targetting closest zombie" ) {
                 main_npc.evaluate_best_weapon( zombie );
@@ -295,7 +295,7 @@ TEST_CASE( "NPC faces zombies", "[npc_attack]" )
         WHEN( "NPC is wearing active power armor. " ) {
             item armor( "power_armor_basic_on" );
             armor.activate();
-            cata::optional<std::list<item>::iterator> wear_success = main_npc.wear_item( armor );
+            std::optional<std::list<item>::iterator> wear_success = main_npc.wear_item( armor );
             REQUIRE( wear_success );
 
             THEN( "NPC deactivates their power armor. " ) {

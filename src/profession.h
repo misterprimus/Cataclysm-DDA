@@ -22,6 +22,8 @@ class Character;
 template<typename T>
 class generic_factory;
 
+struct trait_and_var;
+
 class profession
 {
     public:
@@ -45,7 +47,6 @@ class profession
 
     private:
         string_id<profession> id;
-        std::vector<std::pair<string_id<profession>, mod_id>> src;
         bool was_loaded = false;
 
         translation _name_male;
@@ -64,13 +65,14 @@ class profession
         itype_id no_bonus; // See profession::items and class json_item_substitution in profession.cpp
 
         // does this profession require a specific achiement to unlock
-        cata::optional<achievement_id> _requirement;
-
+        std::optional<achievement_id> _requirement;
 
         std::vector<addiction> _starting_addictions;
         std::vector<bionic_id> _starting_CBMs;
         std::vector<proficiency_id> _starting_proficiencies;
-        std::vector<trait_id> _starting_traits;
+        std::vector<trait_and_var> _starting_traits;
+        std::vector<matype_id> _starting_martialarts;
+        std::vector<matype_id> _starting_martialarts_choices;
         std::set<trait_id> _forbidden_traits;
         std::vector<mtype_id> _starting_pets;
         vproto_id _starting_vehicle = vproto_id::NULL_ID();
@@ -84,7 +86,7 @@ class profession
 
         void check_item_definitions( const itypedecvec &items ) const;
 
-        void load( const JsonObject &jo, const std::string &src );
+        void load( const JsonObject &jo, std::string_view src );
 
     public:
         //these three aren't meant for external use, but had to be made public regardless
@@ -116,10 +118,17 @@ class profession
         std::vector<mtype_id> pets() const;
         std::vector<bionic_id> CBMs() const;
         std::vector<proficiency_id> proficiencies() const;
+        std::vector<matype_id> ma_known() const;
+        std::vector<matype_id> ma_choices() const;
+        int ma_choice_amount;
         StartingSkillList skills() const;
         const std::vector<mission_type_id> &missions() const;
+        int age_lower = 21;
+        int age_upper = 55;
 
-        cata::optional<achievement_id> get_requirement() const;
+        std::vector<std::pair<string_id<profession>, mod_id>> src;
+
+        std::optional<achievement_id> get_requirement() const;
 
         std::map<spell_id, int> spells() const;
         void learn_spells( avatar &you ) const;
@@ -137,15 +146,15 @@ class profession
          *
          * @return true, if player can pick profession. Otherwise - false.
          */
-        ret_val<bool> can_afford( const Character &you, int points ) const;
+        ret_val<void> can_afford( const Character &you, int points ) const;
 
         /**
          * Do you have the necessary achievement state
          */
-        ret_val<bool> can_pick() const;
+        ret_val<void> can_pick() const;
         bool is_locked_trait( const trait_id &trait ) const;
         bool is_forbidden_trait( const trait_id &trait ) const;
-        std::vector<trait_id> get_locked_traits() const;
+        std::vector<trait_and_var> get_locked_traits() const;
         std::set<trait_id> get_forbidden_traits() const;
 
         bool is_hobby() const;

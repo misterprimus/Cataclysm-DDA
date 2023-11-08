@@ -220,8 +220,23 @@
         "topic": "TALK_BLACKSMITH_SERVICES",
         "effect": "start_trade"
       },
+      {
+        "text": "Interesting.  When would be the next batch of merchandise ready?",
+        "topic": "TALK_BLACKSMITH_RESTOCK"
+      },
+      {
+        "text": "I heard you might want some metal…",
+        "topic": "TALK_BLACKSMITH_DEAL_NEGOTIATE",
+        "condition": { "u_has_mission": "MISSION_SCRAPPER_SET_TRADE_ROUTE_BLACKSMITH" }
+      },
       { "text": "I have to go.", "topic": "TALK_DONE" }
     ]
+  },
+  {
+    "id": "TALK_BLACKSMITH_RESTOCK",
+    "type": "talk_topic",
+    "dynamic_line": "With how the things are goin'? <interval>.",
+    "responses": [ { "text": "I'll leave you to your work then.  Bye.", "topic": "TALK_DONE" } ]
   },
   {
     "id": "TALK_BLACKSMITH_ABOUT",
@@ -391,6 +406,18 @@
       },
       { "text": "Not really interested.", "topic": "TALK_DONE" },
       { "text": "I'll think about it.", "topic": "TALK_BLACKSMITH_SERVICES" }
+    ]
+  },
+  {
+    "id": "TALK_BLACKSMITH_DEAL_NEGOTIATE",
+    "type": "talk_topic",
+    "dynamic_line": [ "Sure, honey!  I'm always in need of more material!  What's the price, though?" ],
+    "responses": [
+      {
+        "text": "Well, how about 100 merch for every 70 pounds of metal…",
+        "effect": { "u_spawn_item": "trade_writ" },
+        "topic": "TALK_DONE"
+      }
     ]
   }
 ]

@@ -26,7 +26,12 @@
     "worn_override": "REFUGEE_Alonso_worn",
     "carry_override": "REFUGEE_Alonso_carried",
     "weapon_override": "REFUGEE_Alonso_wield",
-    "traits": [ { "trait": "PRETTY" }, { "group": "Appearance_demographics" } ],
+    "traits": [
+      { "trait": "PRETTY" },
+      { "group": "Appearance_demographics" },
+      { "trait": "NO_BASH" },
+      { "trait": "RETURN_TO_START_POS" }
+    ],
     "skills": [
       { "skill": "ALL", "level": { "mul": [ { "one_in": 3 }, { "sum": [ { "dice": [ 2, 2 ] }, { "rng": [ 0, -5 ] } ] } ] } },
       { "skill": "speech", "bonus": { "rng": [ 0, 1 ] } }
@@ -314,6 +319,7 @@
     "id": "MISSION_REFUGEE_Alonso_pants",
     "type": "mission_definition",
     "name": { "str": "Alonso must have his special pants" },
+    "description": "Find Alonso's leather pants in the 'toy shop' Alonso has marked on your map.",
     "goal": "MGOAL_FIND_ITEM",
     "difficulty": 2,
     "value": 1000,

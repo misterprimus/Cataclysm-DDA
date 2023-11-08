@@ -1,5 +1,7 @@
 #include "HeaderGuardCheck.h"
 
+#include <iostream>
+#include <unordered_map>
 #include <unordered_set>
 
 #include <clang/Frontend/CompilerInstance.h>
@@ -12,11 +14,7 @@
 
 #include "Utils.h"
 
-namespace clang
-{
-namespace tidy
-{
-namespace cata
+namespace clang::tidy::cata
 {
 
 CataHeaderGuardCheck::CataHeaderGuardCheck( StringRef Name,
@@ -300,7 +298,7 @@ class HeaderGuardPPCallbacks : public PPCallbacks
 
         /// \brief Looks for files that were visited but didn't have a header guard.
         /// Emits a warning with fixits suggesting adding one.
-        void checkGuardlessHeaders( std::unordered_set<std::string> GuardlessHeaders ) {
+        void checkGuardlessHeaders( const std::unordered_set<std::string> &GuardlessHeaders ) {
             // Look for header files that didn't have a header guard. Emit a warning and
             // fix-its to add the guard.
             for( const std::string &FileName : GuardlessHeaders ) {
@@ -312,7 +310,7 @@ class HeaderGuardPPCallbacks : public PPCallbacks
                 const FileInfo &Info = FileInfos.at( FileName );
                 const FileEntry *FE = Info.Entry;
                 if( !FE ) {
-                    fprintf( stderr, "No FileEntry for %s\n", FileName.c_str() );
+                    std::cerr << "No FileEntry for " << FileName << "\n";
                     continue;
                 }
                 FileID FID = SM.translateFile( FE );
@@ -386,6 +384,4 @@ void CataHeaderGuardCheck::registerPPCallbacks(
     PP->addPPCallbacks( std::make_unique<HeaderGuardPPCallbacks>( PP, this ) );
 }
 
-} // namespace cata
-} // namespace tidy
-} // namespace clang
+} // namespace clang::tidy::cata
